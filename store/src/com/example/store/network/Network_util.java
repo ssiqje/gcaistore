@@ -1,0 +1,419 @@
+package com.example.store.network;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.example.store.CodeId;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Handler;
+
+public class Network_util {
+	
+
+	/**
+	 * 注册一个用户
+	 * @param url 请求地址
+	 * @param object 注册对象
+	 * @param handler 
+	 * @return 返回HANDLER MSG,成功返回 WHAT=REGEDIT_USER_OK  失败返回 WHAT=REGEDIT_USER_FAIL
+	 */
+	public static void regeditUser(final String url, final JSONObject object,
+			final Handler handler) {
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				try {
+					int i = isNameOk(object.getString("user_name"));
+					if (i == 1) {
+						try {
+							HttpURLConnection connection = (HttpURLConnection) new URL(
+									url).openConnection();
+							connection.setReadTimeout(1000 * 5);
+							connection.setRequestMethod("POST");
+							OutputStream outputStream = connection
+									.getOutputStream();
+							outputStream
+									.write(("action=user_regedit&userJson=" + object
+											.toString()).getBytes());
+							if (connection.getResponseCode() == 200) {
+								BufferedReader brReader = new BufferedReader(
+										new InputStreamReader(connection
+												.getInputStream()));
+								StringBuffer sbBuffer = new StringBuffer();
+								String lineString = null;
+								while ((lineString = brReader.readLine()) != null) {
+									sbBuffer.append(lineString);
+								}
+								String resultString = sbBuffer.toString();
+								if (!"".equals(resultString)) {
+									JSONObject resulJsonObject = new JSONObject(
+											resultString);
+									System.out.println("接收到注册成功的JSON:"
+											+ resulJsonObject.toString());
+									handler.sendMessage(handler.obtainMessage(
+											CodeId.MessageID.REGEDIT_USER_OK, resulJsonObject));
+								}
+
+							} else {
+								handler.sendMessage(handler.obtainMessage(
+										CodeId.MessageID.REGEDIT_USER_FAIL, "注册失败！"));
+							}
+
+						} catch (MalformedURLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							handler.sendMessage(handler.obtainMessage(
+									CodeId.MessageID.REGEDIT_USER_FAIL, "注册失败！"));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							handler.sendMessage(handler.obtainMessage(
+									CodeId.MessageID.REGEDIT_USER_FAIL, "注册失败！"));
+						}
+					} else if (i == 2) {
+						handler.sendMessage(handler.obtainMessage(CodeId.MessageID.IS_NAME_OK,
+								"用户名已存在！"));
+					} else {
+						handler.sendMessage(handler.obtainMessage(CodeId.MessageID.IS_NAME_OK,
+								"不好意思，服务器开小差了，请您稍后在试！"));
+					}
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+			}
+		}).start();
+	}
+
+	/**
+	 * 判断用户名在服务器上是否已存在
+	 * 
+	 * @param user_name要查询的用户名
+	 * @return 1合格 ，2不合格，3服务器问题
+	 */
+	public static int isNameOk(final String user_name) {
+		// TODO Auto-generated method stub
+
+		System.out
+				.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		// TODO Auto-generated method stub
+		String url = "http://192.168.254.101/datapackage/userdata";
+		try {
+			HttpURLConnection connection = (HttpURLConnection) new URL(url)
+					.openConnection();
+			connection.setReadTimeout(1000 * 5);
+			connection.setRequestMethod("POST");
+			OutputStream outputStream = connection.getOutputStream();
+			outputStream
+					.write(("action=get_user_by_name&user_name=" + user_name)
+							.getBytes());
+			BufferedReader bReader = new BufferedReader(new InputStreamReader(
+					connection.getInputStream(), "utf-8"));
+			StringBuffer sbBuffer = new StringBuffer();
+			String line;
+			while ((line = bReader.readLine()) != null) {
+				System.out.println(line);
+				sbBuffer.append(line);
+			}
+			String resultString = connection.getResponseMessage();
+			System.out.println("返回的结果:" + resultString + "返回的内容："
+					+ sbBuffer.toString());
+			JSONObject resultJsonObject = null;
+			try {
+				resultJsonObject = new JSONObject(sbBuffer.toString());
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			String result = null;
+			try {
+				result = resultJsonObject.getString("result");
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if (result.equals("yes")) {
+				return 1;
+			} else {
+				return 2;
+			}
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 3;
+	}
+	/**
+	 * 获取服务器上的照片列表
+	 * @param handler
+	 * @return 返回HANDLER MSG,成功返回 WHAT=GET_PHOTO_LIST_OK
+	 */
+	public static void getPhotoList(final Handler handler) {
+		// TODO Auto-generated method stub
+		final ArrayList<HashMap<String, Object>> array_list_photo = new ArrayList<HashMap<String, Object>>();
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				HttpURLConnection connection = null;
+				try {
+					connection = (HttpURLConnection) new URL(
+							"http://192.168.254.101/datapackage/userdata?action=get_photo_add_list")
+							.openConnection();
+					connection.setReadTimeout(1000 * 5);
+					connection.setConnectTimeout(1000 * 5);
+					connection.setRequestMethod("GET");
+					BufferedReader reader = new BufferedReader(
+							new InputStreamReader(connection.getInputStream()));
+					StringBuffer sbBuffer = new StringBuffer();
+					String lineString;
+					while ((lineString = reader.readLine()) != null) {
+						sbBuffer.append(lineString);
+					}
+					try {
+						JSONObject photo_infJsonObject = new JSONObject(
+								sbBuffer.toString());
+						String action = photo_infJsonObject.getString("action");
+						if ("get_photo_add_list".equals(action)) {
+							if ("ok".equals(photo_infJsonObject
+									.getString("result"))) {
+								JSONArray jsonArray = photo_infJsonObject
+										.getJSONArray("json_message");
+								for (int i = 0; i < jsonArray.length(); i++) {
+									Object object = jsonArray.get(i);
+									System.out.println("netwoke:" + object);
+									String urlString = "http://192.168.254.101/"
+											+ object;
+									System.out.println("url:" + urlString);
+									connection = (HttpURLConnection) new URL(
+											urlString).openConnection();
+									System.out.println();
+									connection.setReadTimeout(1000 * 5);
+									connection.setRequestMethod("GET");
+									Bitmap bitmap = BitmapFactory
+											.decodeStream(connection
+													.getInputStream());
+									HashMap<String, Object> map = new HashMap<String, Object>();
+									map.put("bitmap", bitmap);
+									map.put("url", urlString);
+									map.put("title", urlString.subSequence(
+											urlString.lastIndexOf("/"),
+											urlString.length()));
+									array_list_photo.add(map);
+								}
+								handler.sendMessage(handler.obtainMessage(
+										CodeId.MessageID.GET_PHOTO_LIST_OK, array_list_photo));
+							}
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				} catch (MalformedURLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+			}
+		}).start();
+	}
+
+	/**
+	 * 从服务器上获取指定的照片
+	 * @param url 照片地址
+	 * @return 返回HANDLER MSG,成功返回 WHAT=GET_PHOTO_ONE_OK
+	 */
+	public static void getPhotoBuyOne(final Handler handler, final String url) {
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				try {
+					HttpURLConnection connection = (HttpURLConnection) new URL(
+							url).openConnection();
+					connection.setConnectTimeout(5000);
+					connection.setReadTimeout(5000);
+					connection.setRequestMethod("GET");
+					Bitmap bitmap = BitmapFactory.decodeStream(connection
+							.getInputStream());
+					HashMap<String, Object> map = new HashMap<String, Object>();
+					map.put("url", url);
+					map.put("bitmap", bitmap);
+					handler.sendMessage(handler.obtainMessage(CodeId.MessageID.GET_PHOTO_ONE_OK,
+							map));
+
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		}).start();
+	}
+
+	/**
+	 * 检验用户是否可以登入
+	 * @param handler
+	 * @param user_json 待检验的用户
+	 * @return 返回HANDLER MSG,成功返回 WHAT=LOGIN_USER_PASS  失败返回 WHAT=LOGIN_USER_FAIL
+	 */
+	public static void login_user(final Handler handler, final String user_json) {
+		// TODO Auto-generated method stub
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				HttpURLConnection connection = null;
+				try {
+					connection = (HttpURLConnection) new URL(
+							"http://192.168.254.101/datapackage/userdata")
+							.openConnection();
+					connection.setReadTimeout(1000 * 5);
+					connection.setConnectTimeout(1000 * 5);
+					connection.setRequestMethod("POST");
+					OutputStream outputStream = connection.getOutputStream();
+					outputStream
+							.write(("action=login_user&user_json=" + user_json)
+									.getBytes());
+					BufferedReader reader = new BufferedReader(
+							new InputStreamReader(connection.getInputStream(),"utf-8"));
+					StringBuffer sbBuffer = new StringBuffer();
+					String lineString;
+					while ((lineString = reader.readLine()) != null) {
+						sbBuffer.append(lineString);
+					}
+					try {
+						JSONObject login_resultJsonObject = new JSONObject(
+								sbBuffer.toString());
+						System.out.println("登入用户资料查找结果："+login_resultJsonObject.toString());
+						String action = login_resultJsonObject
+								.getString("action");
+						if ("login_user".equals(action)) {
+							if ("pass".equals(login_resultJsonObject
+									.getString("result"))) {
+								
+
+								handler.sendMessage(handler.obtainMessage(
+										CodeId.MessageID.LOGIN_USER_PASS, login_resultJsonObject.getString("json_message")));
+							}else {
+								handler.sendMessage(handler.obtainMessage(CodeId.MessageID.LOGIN_USER_FAIL, "用户ID或密码错误！"));
+							}
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						handler.sendMessage(handler.obtainMessage(CodeId.MessageID.LOGIN_USER_FAIL, "json:网络异常，请稍候在试！"));
+					}
+
+				} catch (MalformedURLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					handler.sendMessage(handler.obtainMessage(CodeId.MessageID.LOGIN_USER_FAIL, "MalformedURL:网络异常，请稍候在试！"));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					handler.sendMessage(handler.obtainMessage(CodeId.MessageID.LOGIN_USER_FAIL, "IO:网络异常，请稍候在试！"));
+				}
+
+			}
+		}).start();
+	}
+
+	public static void upUser(final Handler handler, final JSONObject userJsonObject) {
+		// TODO Auto-generated method stub
+		
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				HttpURLConnection connection = null;
+				try {
+					connection = (HttpURLConnection) new URL(
+							"http://192.168.254.101/datapackage/userdata")
+							.openConnection();
+					connection.setReadTimeout(1000 * 5);
+					connection.setConnectTimeout(1000 * 5);
+					connection.setRequestMethod("POST");
+					OutputStream outputStream = connection.getOutputStream();
+					outputStream
+							.write(("action=up_user_data&user_json=" + userJsonObject.toString())
+									.getBytes());
+					BufferedReader reader = new BufferedReader(
+							new InputStreamReader(connection.getInputStream(),"utf-8"));
+					StringBuffer sbBuffer = new StringBuffer();
+					String lineString;
+					while ((lineString = reader.readLine()) != null) {
+						sbBuffer.append(lineString);
+					}
+					try {
+						JSONObject login_resultJsonObject = new JSONObject(
+								sbBuffer.toString());
+						System.out.println("用户资料更新结果："+login_resultJsonObject.toString());
+						String action = login_resultJsonObject
+								.getString("action");
+						if ("up_user_data".equals(action)) {
+							if ("pass".equals(login_resultJsonObject
+									.getString("result"))) {
+								
+
+								handler.sendMessage(handler.obtainMessage(
+										CodeId.MessageID.UP_USER_DATA_OK, "数据上传成功！"));
+							}else {
+								handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UP_USER_DATA_FAIL, "数据上传失败！"));
+							}
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UP_USER_DATA_FAIL, "json:网络异常，请稍候在试！"));
+					}
+
+				} catch (MalformedURLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UP_USER_DATA_FAIL, "MalformedURL:网络异常，请稍候在试！"));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UP_USER_DATA_FAIL, "IO:网络异常，请稍候在试！"));
+				}
+
+			}
+		}).start();
+		
+		
+		
+	}
+}
