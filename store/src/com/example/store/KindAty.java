@@ -30,8 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class KindAty extends Activity implements OnClickListener {
-	private EditText et_kind_id, et_weight_m, et_gc_long, et_inpay_m,
-			et_outpay_m;
+	private EditText et_kind_id, et_weight_m, et_gc_long;
 	private Button but_water, but_store, but_home, but_seting, but_about;
 	private ListView kind_seting_lv;
 	private SimpleAdapter kind_seting_Adapter;
@@ -60,8 +59,7 @@ public class KindAty extends Activity implements OnClickListener {
 		et_kind_id = (EditText) findViewById(R.id.edittext_kind_id);
 		et_weight_m = (EditText) findViewById(R.id.edittext_weight_m);
 		et_gc_long = (EditText) findViewById(R.id.edittext_gc_long);
-		et_inpay_m = (EditText) findViewById(R.id.edittext_inpay_m);
-		et_outpay_m = (EditText) findViewById(R.id.edittext_outpay_m);
+		
 
 		but_water = (Button) findViewById(R.id.but_water);
 		but_store = (Button) findViewById(R.id.but_store);
@@ -85,10 +83,9 @@ public class KindAty extends Activity implements OnClickListener {
 		kind_seting_lv = (ListView) findViewById(R.id.kind_seting_lv);
 		kind_seting_Adapter = new SimpleAdapter(this, listMaps,
 				R.layout.item_seting, new String[] { "kind_id", "weight_m",
-						"gc_long", "inpay_m", "outpay_m" }, new int[] {
+						"gc_long" }, new int[] {
 						R.id.item_set_kind_id, R.id.item_set_weight_m,
-						R.id.item_set_gc_long, R.id.item_set_inpay_m,
-						R.id.item_set_outpay_m });
+						R.id.item_set_gc_long});
 		kind_seting_lv.setAdapter(kind_seting_Adapter);
 		kind_seting_lv.setOnItemClickListener(new OnItemClickListener() {
 
@@ -96,7 +93,23 @@ public class KindAty extends Activity implements OnClickListener {
 			public void onItemClick(AdapterView<?> parent, final View view,
 					final int position, long id) {
 				// TODO Auto-generated method stub
-				if(dao.getList(In_store.class)==null&&dao.getList(Out_store.class)==null)
+				
+				String kind_id = ((TextView) view
+						.findViewById(R.id.item_set_kind_id)).getText()
+						.toString();
+				float weight_m = Float.parseFloat(((TextView) view
+						.findViewById(R.id.item_set_weight_m))
+						.getText().toString());
+				float gc_long = Float.parseFloat(((TextView) view
+						.findViewById(R.id.item_set_gc_long)).getText()
+						.toString());
+				final GcParameter gcParameter = new GcParameter();
+				gcParameter.setKind_id(kind_id);
+				gcParameter.setWeight_m(weight_m);
+				gcParameter.setGc_long(gc_long);
+				
+				//if(dao.getList(In_store.class)==null&&dao.getList(Out_store.class)==null)
+				if(dao.getById(In_store.class, gcParameter.getKind_id())==null&&dao.getById(Out_store.class, gcParameter.getKind_id())==null)
 				{
 					AlertDialog.Builder menuDialog = new Builder(KindAty.this);
 					View menuView = LayoutInflater.from(KindAty.this).inflate(
@@ -115,30 +128,9 @@ public class KindAty extends Activity implements OnClickListener {
 						@Override
 						public void onClick(View v) {
 							// TODO Auto-generated method stub
-							String kind_id = ((TextView) view
-									.findViewById(R.id.item_set_kind_id)).getText()
-									.toString();
-							float weight_m = Float.parseFloat(((TextView) view
-									.findViewById(R.id.item_set_weight_m))
-									.getText().toString());
-							float gc_long = Float.parseFloat(((TextView) view
-									.findViewById(R.id.item_set_gc_long)).getText()
-									.toString());
-							float inpay_m = Float.parseFloat(((TextView) view
-									.findViewById(R.id.item_set_inpay_m)).getText()
-									.toString());
-							float outpay_m = Float.parseFloat(((TextView) view
-									.findViewById(R.id.item_set_outpay_m))
-									.getText().toString());
-							final GcParameter gcParameter = new GcParameter();
-							gcParameter.setKind_id(kind_id);
-							gcParameter.setWeight_m(weight_m);
-							gcParameter.setGc_long(gc_long);
-							gcParameter.setInpay_m(inpay_m);
-							gcParameter.setOutpay_m(outpay_m);
-							String msg = "您确定要删除此项吗?\n编号ID:" + kind_id + "重/M:"
-									+ weight_m + "长/根:" + gc_long + "进价:" + inpay_m
-									+ "出价:" + outpay_m;
+							
+							String msg = "您确定要删除此项吗?\n编号ID:" + gcParameter.getKind_id() + "重/M:"
+									+ gcParameter.getWeight_m()+ "长/根:" + gcParameter.getGc_long();
 							AlertDialog.Builder delDialog = new AlertDialog.Builder(
 									KindAty.this);
 							delDialog
@@ -189,15 +181,11 @@ public class KindAty extends Activity implements OnClickListener {
 							final EditText et__kind_id=(EditText)modifyView.findViewById(R.id.edittext_kind_id_mod);
 							final EditText et__weight_m=(EditText)modifyView.findViewById(R.id.edittext_weight_m_mod);
 							final EditText et__gc_long=(EditText)modifyView.findViewById(R.id.edittext_gc_long_mod);
-							final EditText et__inpay_m=(EditText)modifyView.findViewById(R.id.edittext_inpay_m_mod);
-							final EditText et__outpay_m=(EditText)modifyView.findViewById(R.id.edittext_outpay_m_mod);
 							
 							HashMap<String, String> map =listMaps.get(position);
 							et__kind_id.setText(map.get("kind_id"));
 							et__weight_m.setText(map.get("weight_m"));
 							et__gc_long.setText(map.get("gc_long"));
-							et__inpay_m.setText(map.get("inpay_m"));
-							et__outpay_m.setText(map.get("outpay_m"));
 							
 							
 							AlertDialog.Builder modifyBuilder = new Builder(KindAty.this).setTitle("修改！").setView(modifyView)
@@ -211,14 +199,10 @@ public class KindAty extends Activity implements OnClickListener {
 											String kind_id = et__kind_id.getText().toString();
 											float weight_m = Float.parseFloat(et__weight_m.getText().toString());
 											float gc_long = Float.parseFloat(et__gc_long.getText().toString());
-											float inpay_m = Float.parseFloat(et__inpay_m.getText().toString());
-											float outpay_m = Float.parseFloat(et__outpay_m.getText().toString());
 											GcParameter gcParameter = new GcParameter();
 											gcParameter.setKind_id(kind_id);
 											gcParameter.setWeight_m(weight_m);
 											gcParameter.setGc_long(gc_long);
-											gcParameter.setInpay_m(inpay_m);
-											gcParameter.setOutpay_m(outpay_m);
 											if(dao.upData(gcParameter))
 											{
 												Toast.makeText(KindAty.this, "修改成功！", Toast.LENGTH_SHORT).show();
@@ -257,8 +241,6 @@ public class KindAty extends Activity implements OnClickListener {
 				map.put("kind_id", gcParameter.getKind_id());
 				map.put("weight_m", gcParameter.getWeight_m() + "");
 				map.put("gc_long", gcParameter.getGc_long() + "");
-				map.put("inpay_m", gcParameter.getInpay_m() + "");
-				map.put("outpay_m", gcParameter.getOutpay_m() + "");
 				listMaps.add(map);
 
 			}
@@ -274,22 +256,17 @@ public class KindAty extends Activity implements OnClickListener {
 		String kind_id = et_kind_id.getText().toString();
 		String weight_m = et_weight_m.getText().toString();
 		String gc_long = et_gc_long.getText().toString();
-		String inpay_m = et_inpay_m.getText().toString();
-		String outpya_m = et_outpay_m.getText().toString();
-		if(!server.isNull(kind_id,weight_m,gc_long,inpay_m,outpya_m))
+		if(!server.isNull(kind_id,weight_m,gc_long))
 		{
 			Toast.makeText(KindAty.this, "数据错误或者为空！", Toast.LENGTH_LONG).show();
 			return;
 		}
-		System.out.println(kind_id + "@" + weight_m + "@" + gc_long + "@"
-				+ inpay_m + "@" + outpya_m);
+		System.out.println(kind_id + "@" + weight_m + "@" + gc_long );
 		gcParameter.setKind_id(kind_id);
 		gcParameter.setWeight_m(Float.parseFloat(weight_m));
 		gcParameter.setGc_long(Float.parseFloat(gc_long));
-		gcParameter.setInpay_m(Float.parseFloat(inpay_m));
-		gcParameter.setOutpay_m(Float.parseFloat(outpya_m));
 		String msg = "您确定要添加此项吗?\n编号ID:" + kind_id + "重/M:" + weight_m + "长/根:"
-				+ gc_long + "进价:" + inpay_m + "出价:" + outpya_m;
+				+ gc_long;
 		AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 		alertDialog.setTitle("提示！").setMessage(msg)
 				.setNegativeButton("否", null)
@@ -303,10 +280,15 @@ public class KindAty extends Activity implements OnClickListener {
 							map.put("kind_id", gcParameter.getKind_id());
 							map.put("weight_m", gcParameter.getWeight_m() + "");
 							map.put("gc_long", gcParameter.getGc_long() + "");
-							map.put("inpay_m", gcParameter.getInpay_m() + "");
-							map.put("outpay_m", gcParameter.getOutpay_m() + "");
 							listMaps.add(map);
 							kind_seting_Adapter.notifyDataSetChanged();
+							
+							et_kind_id.setText("");
+							et_weight_m.setText("");
+							et_gc_long.setText("");
+							
+							Toast.makeText(KindAty.this, "数据添加成功！",
+									Toast.LENGTH_SHORT).show();
 						} else {
 							System.out.println("数据添加失败！~~~~~~~~~~~~");
 							Toast.makeText(KindAty.this, "数据添加失败！",

@@ -54,6 +54,8 @@ public class InAndOutAty extends Activity {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.inout);
+		
+		
 		tabHost = (TabHost) findViewById(R.id.tabhost);
 		inSpinner = (Spinner) findViewById(R.id.in_spinner);
 		outSpinner = (Spinner) findViewById(R.id.out_spinner);
@@ -182,7 +184,6 @@ public class InAndOutAty extends Activity {
 					GcParameter gcParameter = (GcParameter) list.get(position);
 					in_weight_m.setText(gcParameter.getWeight_m() + "");
 					in_gc_long.setText(gcParameter.getGc_long() + "");
-					in_inpay_m.setText(gcParameter.getInpay_m() + "");
 				}
 
 				@Override
@@ -200,7 +201,6 @@ public class InAndOutAty extends Activity {
 					GcParameter gcParameter = (GcParameter) list.get(position);
 					out_weight_m.setText(gcParameter.getWeight_m() + "");
 					out_gc_long.setText(gcParameter.getGc_long() + "");
-					out_outpay_m.setText(gcParameter.getOutpay_m() + "");
 				}
 
 				@Override
@@ -265,6 +265,7 @@ public class InAndOutAty extends Activity {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						// TODO Auto-generated method stub
+						//添加一条进货记录，并返回添加是否成功的结果
 						if (server.addInStore(id, kind_id, weight_m, gc_long,
 								inpay_m, count, date)) {
 							HashMap<String, String> map = new HashMap<String, String>();
@@ -281,6 +282,8 @@ public class InAndOutAty extends Activity {
 											* Integer.parseInt(count) + "");
 							inList.add(map);
 							inAdapter.notifyDataSetChanged();
+							in_inpay_m.setText("");
+							in_count.setText("");
 							Toast.makeText(InAndOutAty.this, "添加成功！",
 									Toast.LENGTH_SHORT).show();
 						} else {
@@ -351,6 +354,8 @@ public class InAndOutAty extends Activity {
 											* Integer.parseInt(count) + "");
 							outList.add(map);
 							outAdapter.notifyDataSetChanged();
+							out_outpay_m.setText("");
+							out_count.setText("");
 							Toast.makeText(InAndOutAty.this, "添加成功！",
 									Toast.LENGTH_SHORT).show();
 						} 

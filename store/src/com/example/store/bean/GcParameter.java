@@ -5,8 +5,6 @@ public class GcParameter
 	private String kind_id;
 	private float weight_m;
 	private float gc_long;
-	private float inpay_m;
-	private float outpay_m;
 	public String getKind_id() {
 		return kind_id;
 	}
@@ -25,26 +23,13 @@ public class GcParameter
 	public void setGc_long(float gc_long) {
 		this.gc_long = gc_long;
 	}
-	public float getInpay_m() {
-		return inpay_m;
-	}
-	public void setInpay_m(float inpay_m) {
-		this.inpay_m = inpay_m;
-	}
-	public float getOutpay_m() {
-		return outpay_m;
-	}
-	public void setOutpay_m(float outpay_m) {
-		this.outpay_m = outpay_m;
-	}
 	
 	
 	
 	@Override
 	public String toString() {
 		return "GcParameter [kind_id=" + kind_id + ", weight_m=" + weight_m
-				+ ", gc_long=" + gc_long + ", inpay_m=" + inpay_m
-				+ ", outpay_m=" + outpay_m + "]";
+				+ ", gc_long=" + gc_long + "]";
 	}
 	
 	

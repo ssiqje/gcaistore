@@ -59,15 +59,13 @@ public class StoreAty extends Activity implements OnClickListener
 				Store store = (Store) object;
 				HashMap<String, String> map = new HashMap<String, String>();
 				map.put("kind_id", store.getKind_id());
-				map.put("pay_m", store.getInpay_m()+"");
 				map.put("count", store.getCount()+"");
 				map.put("weight", store.getWight()+"");
-				map.put("allpay", store.getAllpay()+"");
 				data.add(map);
 			}
 		}
 		lv_store = (ListView) findViewById(R.id.lv_store);
-		lv_store.setAdapter(new SimpleAdapter(this, data, R.layout.item_store, new String[]{"kind_id","pay_m","count","weight","allpay"}, new int[]{R.id.store_kind_id,R.id.store_pay_m,R.id.store_count,R.id.store_weight,R.id.store_allpay}));
+		lv_store.setAdapter(new SimpleAdapter(this, data, R.layout.item_store, new String[]{"kind_id","count","weight"}, new int[]{R.id.store_kind_id,R.id.store_count,R.id.store_weight}));
 	}
 	@Override
 	public void onClick(View v) 

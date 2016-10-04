@@ -20,9 +20,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		db.execSQL("CREATE TABLE GcParameter ("+
 					"kind_id  VARCHAR PRIMARY KEY,"+
 					"weight_m DECIMAL NOT NULL,"+
-					"gc_long     DECIMAL NOT NULL,"+
-					"inpay_m  DECIMAL NOT NULL,"+
-					"outpay_m DECIMAL NOT NULL"+
+					"gc_long     DECIMAL NOT NULL"+
 					")");
 		//创建进贷表
 		db.execSQL("CREATE TABLE In_store ("+
@@ -53,10 +51,8 @@ public class DbHelper extends SQLiteOpenHelper {
 				"kind_id  VARCHAR PRIMARY KEY,"+
                  "weight_m DECIMAL NOT NULL,"+
                  "gc_long     DECIMAL NOT NULL,"+
-                 "inpay_m  DECIMAL NOT NULL,"+
                  "count    INTEGER NOT NULL,"+
-                 "wight    DECIMAL NOT NULL,"+
-				"allpay   DECIMAL NOT NULL"+
+                 "wight    DECIMAL NOT NULL"+
 				")");
 		//概要表
 		db.execSQL("CREATE TABLE Summary ("+

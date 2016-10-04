@@ -87,8 +87,6 @@ public class Server {
 		if (in_db_store != null) {
 			in_db_store.setCount(in_db_store.getCount() + inStore.getCount());
 			in_db_store.setWight(in_db_store.getWight() + inStore.getWight());
-			in_db_store
-					.setAllpay(in_db_store.getAllpay() + inStore.getAllpay());
 			if (!dao.upData(in_db_store)) {
 				b = false;
 			}
@@ -97,10 +95,8 @@ public class Server {
 			store.setKind_id(inStore.getKind_id());
 			store.setWeight_m(inStore.getWeight_m());
 			store.setGc_long(inStore.getGc_long());
-			store.setInpay_m(inStore.getInpay_m());
 			store.setCount(inStore.getCount());
 			store.setWight(inStore.getWight());
-			store.setAllpay(inStore.getAllpay());
 			if (!dao.save(store)) {
 				b = false;
 			}
@@ -184,8 +180,6 @@ public class Server {
 			if (store != null) {
 				store.setCount(store.getCount() - out_store.getCount());
 				store.setWight(store.getWight() - out_store.getWight());
-				store
-						.setAllpay(store.getInpay_m()*store.getGc_long()*store.getCount());
 			} 
 
 			// 更新总表
@@ -221,12 +215,8 @@ public class Server {
 		in_store.setId(Long.parseLong(hashMap.get("id")));
 		//要更新的库存对象
 		Store store = (Store) dao.getById(Store.class, hashMap.get("kind_id"));
-		store.setWight(store.getWight()
-				- Float.parseFloat(hashMap.get("weight")));
-		store.setCount(store.getCount()
-				- Integer.parseInt(hashMap.get("count")));
-		store.setAllpay(store.getAllpay()
-				- Float.parseFloat(hashMap.get("allpay")));
+		store.setWight(store.getWight()- Float.parseFloat(hashMap.get("weight")));
+		store.setCount(store.getCount()- Integer.parseInt(hashMap.get("count")));
 		//要更新的总表对象
 		Summary summary=null;
 		ArrayList<Object> list = dao.getList(Summary.class);
@@ -263,7 +253,6 @@ public class Server {
 
 		store.setWight(store.getWight()+ Float.parseFloat(hashMap.get("weight")));
 		store.setCount(store.getCount()+ Integer.parseInt(hashMap.get("count")));
-		store.setAllpay(store.getInpay_m()*store.getGc_long()*store.getCount());
 		if (!dao.upData(store)) {
 			b = false;
 		}

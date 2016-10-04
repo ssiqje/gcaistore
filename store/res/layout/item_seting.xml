@@ -27,20 +27,4 @@
         android:layout_weight="1"
         android:text="长/根" />
 
-    <TextView
-        android:id="@+id/item_set_inpay_m"
-        android:layout_marginTop="20dp"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="进价" />
-
-    <TextView
-         android:id="@+id/item_set_outpay_m"
-        android:layout_marginTop="20dp"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="售价" />
-
 </LinearLayout>

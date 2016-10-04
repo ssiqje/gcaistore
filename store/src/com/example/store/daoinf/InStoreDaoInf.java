@@ -301,10 +301,7 @@ public class InStoreDaoInf implements InfDao {
 						.getColumnIndex("weight_m")));
 				gcParameter.setGc_long(cursor.getFloat(cursor
 						.getColumnIndex("gc_long")));
-				gcParameter.setInpay_m(cursor.getFloat(cursor
-						.getColumnIndex("inpay_m")));
-				gcParameter.setOutpay_m(cursor.getFloat(cursor
-						.getColumnIndex("outpay_m")));
+				
 				list.add(gcParameter);
 				System.out
 						.println("-->GcParameter<--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
@@ -373,11 +370,8 @@ public class InStoreDaoInf implements InfDao {
 						.getColumnIndex("weight_m")));
 				store.setGc_long(cursor.getFloat(cursor
 						.getColumnIndex("gc_long")));
-				store.setInpay_m(cursor.getFloat(cursor
-						.getColumnIndex("inpay_m")));
 				store.setCount(cursor.getInt(cursor.getColumnIndex("count")));
 				store.setWight(cursor.getFloat(cursor.getColumnIndex("wight")));
-				store.setAllpay(cursor.getFloat(cursor.getColumnIndex("allpay")));
 				list.add(store);
 			}
 			close();
@@ -421,10 +415,6 @@ public class InStoreDaoInf implements InfDao {
 							.getColumnIndex("weight_m")));
 					gcParameter.setGc_long(cursor.getFloat(cursor
 							.getColumnIndex("gc_long")));
-					gcParameter.setInpay_m(cursor.getFloat(cursor
-							.getColumnIndex("inpay_m")));
-					gcParameter.setOutpay_m(cursor.getFloat(cursor
-							.getColumnIndex("outpay_m")));
 					close();
 					return gcParameter;
 				} else if ("In_store".equals(table)) {
@@ -477,13 +467,9 @@ public class InStoreDaoInf implements InfDao {
 							.getColumnIndex("weight_m")));
 					store.setGc_long(cursor.getFloat(cursor
 							.getColumnIndex("gc_long")));
-					store.setInpay_m(cursor.getFloat(cursor
-							.getColumnIndex("inpay_m")));
 					store.setCount(cursor.getInt(cursor.getColumnIndex("count")));
 					store.setWight(cursor.getFloat(cursor
 							.getColumnIndex("wight")));
-					store.setAllpay(cursor.getFloat(cursor
-							.getColumnIndex("allpay")));
 					close();
 					return store;
 

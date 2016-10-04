@@ -6,14 +6,8 @@
         	android:id="@+id/store_kind_id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="3"
+             android:layout_weight="1"
             android:text="编号ID" />
-         <TextView
-             android:id="@+id/store_pay_m"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="单价" />
 
          <TextView
              android:id="@+id/store_count"
@@ -28,12 +22,5 @@
              android:layout_height="wrap_content"
              android:layout_weight="1"
              android:text="重量" />
-
-         <TextView
-             android:id="@+id/store_allpay"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="总价" />
 
 </LinearLayout>
