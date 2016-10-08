@@ -2,8 +2,6 @@ package com.example.store.dao;
 
 import java.util.List;
 
-import com.example.store.bean.InfBean;
-
 public interface InfDao 
 {
 	/**

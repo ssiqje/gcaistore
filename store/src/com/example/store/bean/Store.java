@@ -2,7 +2,7 @@ package com.example.store.bean;
 
 import java.util.ArrayList;
 
-public class Store
+public class Store extends T
 {
 	private String kind_id;
 	private float weight_m;
@@ -47,6 +47,19 @@ public class Store
 				+ wight +  "]";
 	}
 	
-	
+	/**
+	 * 获取中文表名，种文字段名，英文字段名
+	 * @return 返回中文表名，种文字段名，英文字段名
+	 */
+	public String[][] excelGetMessage()
+	{
+		return new String[][]{
+								{"库存表"},
+								{"种类编号","米/吨","根/M","根数","总重(吨)"},
+								{"kind_id","weight_m","gc_long","count","wight"}
+								
+							  };
+		
+	}
 	
 }

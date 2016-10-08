@@ -2,7 +2,7 @@ package com.example.store.bean;
 
 import android.widget.ImageView;
 
-public class User 
+public class User  extends T
 {
 	private String photoImageView;
 	private String user_name;

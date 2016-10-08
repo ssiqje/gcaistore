@@ -2,7 +2,7 @@ package com.example.store.bean;
 
 import java.util.ArrayList;
 
-public class In_store
+public class In_store extends T
 {
 	private long id;
 	private String kind_id;
@@ -74,6 +74,20 @@ public class In_store
 				+ weight_m + ", gc_long=" + gc_long + ", inpay_m=" + inpay_m
 				+ ", count=" + count + ", wight=" + wight + ", allpay="
 				+ allpay + ", date=" + date + "]";
+	}
+	/**
+	 * 获取中文表名，种文字段名，英文字段名
+	 * @return 返回中文表名，种文字段名，英文字段名
+	 */
+	public String[][] excelGetMessage()
+	{
+		return new String[][]{
+								{"入库表"},
+								{"流水编号","种类编号","米/吨","根/M","进价","根数","总重(吨)","总付款","日期"},
+								{"id","kind_id","weight_m","gc_long","inpay_m","count","wight","allpay","date"}
+								
+							  };
+		
 	}
 	
 	

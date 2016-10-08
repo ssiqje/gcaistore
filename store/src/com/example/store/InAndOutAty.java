@@ -20,6 +20,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -47,6 +48,7 @@ public class InAndOutAty extends Activity {
 	private ArrayList<Object> list;
 	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
+	private Handler handler;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +57,7 @@ public class InAndOutAty extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.inout);
 		
-		
+		handler = new Handler();
 		tabHost = (TabHost) findViewById(R.id.tabhost);
 		inSpinner = (Spinner) findViewById(R.id.in_spinner);
 		outSpinner = (Spinner) findViewById(R.id.out_spinner);
@@ -154,7 +156,7 @@ public class InAndOutAty extends Activity {
 			}
 		});
 		dao = new InStoreDaoInf(this);
-		server = new Server(this);
+		server = new Server(this,handler);
 
 		tabHost.setup();
 		tabHost.addTab(tabHost.newTabSpec("in").setIndicator("½ø»õ")

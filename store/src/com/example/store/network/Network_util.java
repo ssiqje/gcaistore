@@ -1,7 +1,11 @@
 package com.example.store.network;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -9,6 +13,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -350,6 +356,11 @@ public class Network_util {
 		}).start();
 	}
 
+	/**
+	 * 更新用户资料
+	 * @param handler
+	 * @param userJsonObject
+	 */
 	public static void upUser(final Handler handler, final JSONObject userJsonObject) {
 		// TODO Auto-generated method stub
 		
@@ -416,4 +427,105 @@ public class Network_util {
 		
 		
 	}
+
+	/**
+	 * 上传数据到服务器
+	 * @param path 上传的文件路径
+	 * @return 1,文件为空，2成功，3失败
+	 */
+	public static  void  dataToServer(File path,Handler handler) {
+		// TODO Auto-generated method stub
+		if(path==null)
+		{
+			handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UP_DATA_FILE_IS_ENP, "文件为空！"));
+		}else {
+			int count=1;
+			if(path.isDirectory())
+			{
+				File [] filelist = path.listFiles();
+				for (; count <= filelist.length; count++) {
+					dataToServerGo(filelist[count-1],handler);
+				}
+			}else {
+				dataToServerGo(path,handler);
+			}
+		}
+		
+	}
+
+	public static void dataToServerGo(final File file,final Handler handler) {
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				HttpURLConnection connection = null;
+					    String end = "/r/n";
+					    String Hyphens = "--";
+					    String boundary =UUID.randomUUID().toString();
+					    try
+					    {
+					      URL url = new URL("http://192.168.254.101/datapackage/userdata");
+					      HttpURLConnection con = (HttpURLConnection) url.openConnection();
+					      /* 允许Input、Output，不使用Cache */
+					      con.setDoInput(true);
+					      con.setDoOutput(true);
+					      con.setUseCaches(false);
+					      /* 设定传送的method=POST */
+					      con.setRequestMethod("POST");
+					      /* setRequestProperty */
+					      con.setRequestProperty("Connection", "Keep-Alive");
+					      con.setRequestProperty("Charset", "UTF-8");
+					      con.setRequestProperty("Content-Type",
+					          "multipart/form-data;boundary=" + boundary);
+					      /* 设定DataOutputStream */
+					      DataOutputStream ds = new DataOutputStream(con.getOutputStream());
+					      ds.writeBytes("action=updata");
+					      ds.writeBytes(Hyphens + boundary + end);
+					      ds.writeBytes("Content-Disposition: form-data; "
+					          + "name=\"file1\";filename=\"" + "sdfe" + "\"" + end);
+					      ds.writeBytes(end);
+					      /* 取得文件的FileInputStream */
+					      FileInputStream fStream = new FileInputStream(file);
+					      /* 设定每次写入1024bytes */
+					      int bufferSize = 1024;
+					      byte[] buffer = new byte[bufferSize];
+					      int length = -1;
+					      /* 从文件读取数据到缓冲区 */
+					      while ((length = fStream.read(buffer)) != -1)
+					      {
+					        /* 将数据写入DataOutputStream中 */
+					        ds.write(buffer, 0, length);
+					      }
+					      ds.writeBytes(end);
+					      ds.writeBytes(Hyphens + boundary + Hyphens + end);
+					      fStream.close();
+					      ds.flush();
+					      /* 取得Response内容 */
+//					      InputStream is = con.getInputStream();
+//					      int ch;
+//					      StringBuffer b = new StringBuffer();
+//					      while ((ch = is.read()) != -1)
+//					      {
+//					        b.append((char) ch);
+//					      }
+//					      is.close();
+//					      ds.close();
+//					      if(b.toString().equals("ok"))
+//					      {
+					    	  //handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UP_DATA_FILE_IS_OK, "上传成功！"));
+					      System.out.println("上传成功");
+//					      }
+//					      handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UP_DATA_FILE_IS_FAIL, "上传失败！"));
+					    } catch (Exception e)
+					    {
+					    	e.printStackTrace();
+					    	System.out.println("上传失败");
+					    }
+			}
+
+		}).start();
+	}
+	
+	
 }

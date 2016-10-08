@@ -1,5 +1,6 @@
 package com.example.store;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.json.JSONException;
@@ -16,6 +17,7 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.DrawerLayout;
@@ -38,6 +40,8 @@ import com.example.store.bean.Summary;
 import com.example.store.bean.User;
 import com.example.store.daoinf.InStoreDaoInf;
 import com.example.store.network.Network_util;
+import com.example.store.network.UploadThread;
+import com.example.store.server.Server;
 
 public class HomeActivity extends Activity {
 	// activity request code
@@ -62,6 +66,7 @@ public class HomeActivity extends Activity {
 	private SharedPreferences sPreferences;
 	private User user;
 	private Handler handler;
+	private Server server;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +74,7 @@ public class HomeActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.home_activity);
 		dao = new InStoreDaoInf(this);
+		server = new Server(this,handler);
 		// 初实化
 		init();
 
@@ -117,6 +123,7 @@ public class HomeActivity extends Activity {
 								e.printStackTrace();
 							}
 						}
+						
 
 					}
 
@@ -135,6 +142,10 @@ public class HomeActivity extends Activity {
 					home_but_regedit.setVisibility(View.VISIBLE);
 					home_but_logout.setVisibility(View.GONE);
 				}
+				if(msg.what==CodeId.MessageID.UP_DATA_FILE_IS_OK)
+				{
+					Toast.makeText(HomeActivity.this, msg.obj.toString(), Toast.LENGTH_LONG).show();
+				}
 			}
 		};
 
@@ -152,10 +163,12 @@ public class HomeActivity extends Activity {
 
 		lv_user_data_login = new ArrayList<String>();
 		lv_user_data_login.add("教程指示");
+		lv_user_data_login.add("将数据存到sdcard");
 		lv_user_data_login.add("上传数据到服务器");
 		lv_user_data_login.add("下载数据到本地");
 		lv_user_data_logout = new ArrayList<String>();
 		lv_user_data_logout.add("教程指示");
+		lv_user_data_logout.add("将数据存到sdcard");
 
 		lv_user_adapter = new ArrayAdapter<String>(HomeActivity.this,
 				android.R.layout.simple_expandable_list_item_1, lv_user_data);
@@ -171,7 +184,22 @@ public class HomeActivity extends Activity {
 				if ("教程指示".equals(valuesString)) {
 					startActivity(new Intent(HomeActivity.this,
 							WelcomeAty.class));
-				}else {
+				}else if ("将数据存到sdcard".equals(valuesString)) {
+					
+					new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("害羞。")
+					.setMessage(server.dataToSdcard()==true?"数据转移并保存成功！":"数据转移失败！").setNeutralButton("确定", null)
+					.create().show();
+				}else if("上传数据到服务器".equals(valuesString)){
+					//File excelFilepath = new  File(Environment.getExternalStorageDirectory()+"/user_excel");
+					//File[] files = excelFilepath.listFiles();
+					
+					//boolean b = server.dataToServer();
+					System.out.println("上传数据到服务器~~~~");
+					File file = new File(Environment.getExternalStorageDirectory()+"/user_excel/出货表.xls");
+					UploadThread uploadThread = new UploadThread(file, "http://192.168.254.101/datapackage/upload", handler);
+					uploadThread.start();
+				}
+				else {
 					new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("害羞。")
 					.setMessage("不好意思，这个功能我还没学会。我会加油的，你在等等:) 。").setNeutralButton("确定", null)
 					.create().show();
@@ -194,12 +222,12 @@ public class HomeActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-//				Intent intent = new Intent();
-//				intent.setClass(HomeActivity.this, LoginAty.class);
-//				startActivityForResult(intent, CodeId.StartActivityID.LOGIN);
-				new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("害羞。")
-				.setMessage("不好意思，这个功能我还没学会。我会加油的，你在等等    :) 。").setNeutralButton("确定", null)
-				.create().show();
+				Intent intent = new Intent();
+				intent.setClass(HomeActivity.this, LoginAty.class);
+				startActivityForResult(intent, CodeId.StartActivityID.LOGIN);
+//				new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("害羞。")
+//				.setMessage("不好意思，这个功能我还没学会。我会加油的，你在等等    :) 。").setNeutralButton("确定", null)
+//				.create().show();
 
 			}
 		});
@@ -208,10 +236,10 @@ public class HomeActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				//startActivityForResult(new Intent(HomeActivity.this, RegeditAty.class),CodeId.StartActivityID.USER_REGEIDT);
-				new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("害羞。")
-				.setMessage("不好意思，这个功能我还没学会。我会加油的，你在等等    :) 。").setNeutralButton("确定", null)
-				.create().show();
+				startActivityForResult(new Intent(HomeActivity.this, RegeditAty.class),CodeId.StartActivityID.USER_REGEIDT);
+//				new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("害羞。")
+//				.setMessage("不好意思，这个功能我还没学会。我会加油的，你在等等    :) 。").setNeutralButton("确定", null)
+//				.create().show();
 			}
 		});
 		home_but_logout.setOnClickListener(new OnClickListener() {
@@ -243,21 +271,21 @@ public class HomeActivity extends Activity {
 		but_about.setOnClickListener(listener);
 
 		// 读取文件参数，并设置
-//		sPreferences = this.getSharedPreferences("user", MODE_APPEND);
-//		boolean auto_login = sPreferences.getBoolean("auto_login", false);
-//		if (auto_login) {
-//			String user_json = sPreferences.getString("user_json", "");
-//
-//			Network_util.login_user(handler, user_json);
-//
-//		} else {
+		sPreferences = this.getSharedPreferences("user", MODE_APPEND);
+		boolean auto_login = sPreferences.getBoolean("auto_login", false);
+		if (auto_login) {
+			String user_json = sPreferences.getString("user_json", "");
+
+			Network_util.login_user(handler, user_json);
+
+		} else {
 			lv_user_data.clear();
 			lv_user_data.addAll(lv_user_data_logout);
 			lv_user_adapter.notifyDataSetChanged();
 			home_but_login.setVisibility(View.VISIBLE);
 			home_but_regedit.setVisibility(View.VISIBLE);
 			home_but_logout.setVisibility(View.GONE);
-//		}
+		}
 	}
 
 	// 启动进出货界面
@@ -371,47 +399,47 @@ public class HomeActivity extends Activity {
 	public void setPhoto(View view) {
 
 		
-		new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("害羞。")
-		.setMessage("不好意思，这个功能我还没学会。我会加油的，你在等等    :) 。").setNeutralButton("确定", null)
-		.create().show();
+//		new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("害羞。")
+//		.setMessage("不好意思，这个功能我还没学会。我会加油的，你在等等    :) 。").setNeutralButton("确定", null)
+//		.create().show();
 		
-//		String string = sPreferences.getString("user_json", "");
-//		if (sPreferences.getBoolean("online", false)) {
-//			// 启动用户参数界面
-//			Intent intent = new Intent();
-//			intent.putExtra("user_json", string);
-//			intent.setClass(this, UserParameterCard.class);
-//			startActivityForResult(intent, CodeId.StartActivityID.SET_USER_PARAMETER);
-//		} else {
-//			new AlertDialog.Builder(this)
-//					.setTitle("提示！")
-//					.setMessage("您还未登入，是否现在进行登入？")
-//					.setPositiveButton("是",
-//							new DialogInterface.OnClickListener() {
-//
-//								@Override
-//								public void onClick(DialogInterface dialog,
-//										int which) {
-//									// TODO Auto-generated method stub
-//									startActivityForResult(
-//											new Intent(HomeActivity.this,
-//													LoginAty.class),
-//													CodeId.StartActivityID.LOGIN);
-//
-//								}
-//							})
-//					.setNegativeButton("否",
-//							new DialogInterface.OnClickListener() {
-//
-//								@Override
-//								public void onClick(DialogInterface dialog,
-//										int which) {
-//									// TODO Auto-generated method stub
-//									return;
-//
-//								}
-//							}).create().show();
-//		}
+		String string = sPreferences.getString("user_json", "");
+		if (sPreferences.getBoolean("online", false)) {
+			// 启动用户参数界面
+			Intent intent = new Intent();
+			intent.putExtra("user_json", string);
+			intent.setClass(this, UserParameterCard.class);
+			startActivityForResult(intent, CodeId.StartActivityID.SET_USER_PARAMETER);
+		} else {
+			new AlertDialog.Builder(this)
+					.setTitle("提示！")
+					.setMessage("您还未登入，是否现在进行登入？")
+					.setPositiveButton("是",
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									// TODO Auto-generated method stub
+									startActivityForResult(
+											new Intent(HomeActivity.this,
+													LoginAty.class),
+													CodeId.StartActivityID.LOGIN);
+
+								}
+							})
+					.setNegativeButton("否",
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									// TODO Auto-generated method stub
+									return;
+
+								}
+							}).create().show();
+		}
 
 	}
 

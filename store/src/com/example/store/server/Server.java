@@ -1,26 +1,31 @@
 package com.example.store.server;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.content.Context;
-import android.widget.Toast;
+import android.os.Environment;
+import android.os.Handler;
 
-import com.example.store.InAndOutAty;
-import com.example.store.WaterAty;
+import com.example.store.bean.GcParameter;
 import com.example.store.bean.In_store;
 import com.example.store.bean.Out_store;
 import com.example.store.bean.Store;
 import com.example.store.bean.Summary;
 import com.example.store.daoinf.InStoreDaoInf;
+import com.example.store.db_excle.ExcleUtil;
 import com.example.store.network.Network_util;
 
 public class Server {
 
 	private InStoreDaoInf dao;
+	private Handler handler;
 
-	public Server(Context context) {
+	public Server(Context context,Handler handler) {
 		dao = new InStoreDaoInf(context);
+		this.handler=handler;
 	}
 
 	/**
@@ -271,6 +276,72 @@ public class Server {
 			}
 		}
 		return b;
+	}
+
+	/**
+	 *将数据保存到内存卡
+	 *@return true成功,false失败
+	 */
+	public boolean dataToSdcard() {
+		// TODO Auto-generated method stub
+		boolean b=true;
+		File path = new  File(Environment.getExternalStorageDirectory()+"/user_excel");
+		if(!path.exists())
+		{
+			path.mkdir();
+		}
+    	File kindFile = new File(path,"种类表.xls");
+    	File storeFile = new File(path,"库储表.xls");
+    	File inStoreFile = new File(path,"进货表.xls");
+    	File outStoreFile = new File(path,"出货表.xls");
+    	File summaryFile = new File(path,"总表.xls");
+    	try {
+			if(!kindFile.exists())
+			{
+				kindFile.createNewFile();
+			}
+			if(!storeFile.exists())
+			{
+				storeFile.createNewFile();
+			}
+			if(!inStoreFile.exists())
+			{
+				inStoreFile.createNewFile();
+			}
+			if(!outStoreFile.exists())
+			{
+				outStoreFile.createNewFile();
+			}
+			if(!summaryFile.exists())
+			{
+				summaryFile.createNewFile();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	int gc=ExcleUtil.dataToExcel(dao.getList(GcParameter.class),GcParameter.class,kindFile);
+    	int store=ExcleUtil.dataToExcel(dao.getList(Store.class),Store.class,storeFile);
+    	int instore=ExcleUtil.dataToExcel(dao.getList(In_store.class),In_store.class,inStoreFile);
+    	int outstore=ExcleUtil.dataToExcel(dao.getList(Out_store.class),Out_store.class,outStoreFile);
+    	int summary=ExcleUtil.dataToExcel(dao.getList(Summary.class),Summary.class,summaryFile);
+		return b=(gc==2&&store==2&&instore==2&&outstore==2&&summary==2)?true:false;
+	}
+
+	/**
+	 * 上传数据到服务器
+	 * @return true成功，false失败
+	 */
+	public boolean dataToServer() {
+		// TODO Auto-generated method stub
+		File path = new  File(Environment.getExternalStorageDirectory()+"/user_excel");
+		if(!path.exists())
+		{
+			return true;
+		}else {
+			Network_util.dataToServer(path,handler);
+		}
+		return false;
 	}
 
 }

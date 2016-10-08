@@ -112,7 +112,7 @@ public class RegeditAty extends Activity {
 			}
 
 		};
-		server = new Server(this);
+		server = new Server(this,handler);
 		editText_user_name = (EditText) findViewById(R.id.editText_user_name);
 		editText_user_psw = (EditText) findViewById(R.id.editText_user_psw);
 		editText_qq = (EditText) findViewById(R.id.editText_qq);

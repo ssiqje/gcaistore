@@ -12,6 +12,9 @@ public class CodeId {
 		public static final int LOGIN_USER_FAIL=7;
 		public  static final int UP_USER_DATA_OK = 8;
 		public static final int UP_USER_DATA_FAIL = 9;
+		public static final int UP_DATA_FILE_IS_ENP = 10;
+		public static final int UP_DATA_FILE_IS_OK = 11;
+		public static final int UP_DATA_FILE_IS_FAIL = 12;
 	} 
 	public static class StartActivityID{
 		public static final int USER_REGEIDT = 1;

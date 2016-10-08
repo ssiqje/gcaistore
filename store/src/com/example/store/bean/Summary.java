@@ -2,7 +2,7 @@ package com.example.store.bean;
 
 import java.util.ArrayList;
 
-public class Summary
+public class Summary extends T
 {
 	private int id;
 	private float weight_all;
@@ -40,6 +40,24 @@ public class Summary
 	}
 	public void setIn_or_out_pay(float in_or_out_pay) {
 		this.in_or_out_pay = in_or_out_pay;
+	}
+	
+	
+	@Override
+	public String toString() {
+		return "Summary [id=" + id + ", weight_all=" + weight_all
+				+ ", inpay_all=" + inpay_all + ", outpay_all=" + outpay_all
+				+ ", in_or_out_pay=" + in_or_out_pay + "]";
+	}
+	public String[][] excelGetMessage()
+	{
+		return new String[][]{
+								{"总表"},
+								{"编号","现在吨数","总进价","总售价","盈亏"},
+								{"id","weight_all","inpay_all","outpay_all","in_or_out_pay"}
+								
+							  };
+		
 	}
 
 }

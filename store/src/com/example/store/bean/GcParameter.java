@@ -1,6 +1,6 @@
 package com.example.store.bean;
 
-public class GcParameter
+public class GcParameter extends T
 {
 	private String kind_id;
 	private float weight_m;
@@ -31,6 +31,19 @@ public class GcParameter
 		return "GcParameter [kind_id=" + kind_id + ", weight_m=" + weight_m
 				+ ", gc_long=" + gc_long + "]";
 	}
-	
+	/**
+	 * 获取中文表名，种文字段名，英文字段名
+	 * @return 返回中文表名，种文字段名，英文字段名
+	 */
+	public String[][] excelGetMessage()
+	{
+		return new String[][]{
+								{"种类表"},
+								{"种类编号","米/吨","根/M"},
+								{"kind_id","weight_m","gc_long"}
+								
+							  };
+		
+	}
 	
 }

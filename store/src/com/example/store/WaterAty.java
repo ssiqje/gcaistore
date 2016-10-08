@@ -15,6 +15,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
@@ -34,6 +35,7 @@ public class WaterAty extends Activity implements OnClickListener{
 	private ArrayList<Object> in_store_ArrayList ;
 	private ArrayList<Object> out_store_ArrayList ;
 	private SimpleAdapter water_Adapter;
+	private Handler handler;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -49,7 +51,7 @@ public class WaterAty extends Activity implements OnClickListener{
 	}
 	private void init() {
 		// TODO Auto-generated method stub
-		
+		handler = new  Handler();
 		but_water = (Button) findViewById(R.id.but_water);
 		but_store = (Button) findViewById(R.id.but_store);
 		but_home = (Button) findViewById(R.id.but_home);
@@ -64,7 +66,7 @@ public class WaterAty extends Activity implements OnClickListener{
 		but_about.setOnClickListener(this);
 		
 		dao = new InStoreDaoInf(this);
-		server=new Server(this);
+		server=new Server(this,handler);
 		
 		
 		data = new ArrayList<HashMap<String,String>>();

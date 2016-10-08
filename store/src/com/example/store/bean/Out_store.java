@@ -2,7 +2,7 @@ package com.example.store.bean;
 
 import java.util.ArrayList;
 
-public class Out_store
+public class Out_store extends T
 {
 	private long id;
 	private String kind_id;
@@ -70,6 +70,15 @@ public class Out_store
 		this.date = date;
 	}
 	
-	
+	public String[][] excelGetMessage()
+	{
+		return new String[][]{
+								{"出库表"},
+								{"流水编号","种类编号","米/吨","根/M","售价","根数","总重(吨)","总付款","日期"},
+								{"id","kind_id","weight_m","gc_long","outpay_m","count","wight","allpay","date"}
+								
+							  };
+		
+	}
 	
 }

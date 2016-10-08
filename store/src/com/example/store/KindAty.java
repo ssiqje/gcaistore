@@ -15,6 +15,7 @@ import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -38,6 +39,7 @@ public class KindAty extends Activity implements OnClickListener {
 	private Server server;
 	private ArrayList<Object> list;
 	private List<HashMap<String, String>> listMaps;
+	private Handler handler;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,7 @@ public class KindAty extends Activity implements OnClickListener {
 	}
 	private void init() {
 		// TODO Auto-generated method stub
+		handler = new Handler();
 		et_kind_id = (EditText) findViewById(R.id.edittext_kind_id);
 		et_weight_m = (EditText) findViewById(R.id.edittext_weight_m);
 		et_gc_long = (EditText) findViewById(R.id.edittext_gc_long);
@@ -75,7 +78,7 @@ public class KindAty extends Activity implements OnClickListener {
 		but_about.setOnClickListener(this);
 
 		dao = new InStoreDaoInf(this);
-		server=new Server(this);
+		server=new Server(this,handler);
 
 		// 初实化列表数据
 		initKindSetLvValues();
