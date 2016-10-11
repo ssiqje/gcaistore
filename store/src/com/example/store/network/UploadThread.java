@@ -16,7 +16,7 @@ public class UploadThread extends Thread {
 		private File file;
 		private String fileName;
 		private String url;
-		private String boundary=UUID.randomUUID().toString();
+		private String boundary="055a9eed-ca27-45bd-922e-9f5928767438";
 		private String prefix="--";
 		String end="\r\n";
 		public UploadThread(File file,String url,Handler handler)
@@ -24,6 +24,7 @@ public class UploadThread extends Thread {
 			this.handler=handler;
 			this.file=file;
 			fileName=file.getName();
+			System.out.println("获取到的文件名称："+fileName);
 			this.url=url;
 		}
 		@Override
@@ -38,14 +39,18 @@ public class UploadThread extends Thread {
 				connection .setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
 				DataOutputStream outputStream= new DataOutputStream(connection.getOutputStream());
 				outputStream.writeBytes(prefix+boundary+end);
-				outputStream.writeBytes("Content-Disposition:form-data;name=\"file\";filename=\""+fileName+"\""+end+end);
+				outputStream.writeBytes("Content-Disposition:form-data;name=\"file\";filename=\""+new String(fileName.getBytes(),"ISO-8859-1")+"\""+end+end);
 				FileInputStream fileInputStream = new FileInputStream(file);
-				byte[] b = new byte[1024*10];
+				byte[] b = new byte[1024*1];
 				int lenght=-1;
 				while((lenght=fileInputStream.read(b, 0,b.length))!=-1)
 				{
 					outputStream.write(b, 0, lenght);
 				}
+//				lenght=fileInputStream.read(b, 0,b.length);
+//				outputStream.write(b, 0, lenght);
+				
+				
 				outputStream.writeBytes(end+prefix+boundary+prefix+end);
 				outputStream.flush();
 				fileInputStream.close();

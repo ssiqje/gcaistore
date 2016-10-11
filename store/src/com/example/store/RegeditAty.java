@@ -74,7 +74,7 @@ public class RegeditAty extends Activity {
 							RegeditAty.this);
 					
 						builder.setCancelable(false).setTitle("恭喜 贺喜")
-								.setMessage(("恭喜注册成功！\n您的通行ID是："+user_jsonJsonObject.getInt("user_id")+"\n" +
+								.setMessage(("恭喜注册成功！\n您的通行ID是："+user_jsonJsonObject.getInt("id")+"\n" +
 										"您可以用此ID配合你的密码进行登入！"))
 								.setNeutralButton("确定", new OnClickListener() {
 
@@ -112,7 +112,7 @@ public class RegeditAty extends Activity {
 			}
 
 		};
-		server = new Server(this,handler);
+		server = new Server(this);
 		editText_user_name = (EditText) findViewById(R.id.editText_user_name);
 		editText_user_psw = (EditText) findViewById(R.id.editText_user_psw);
 		editText_qq = (EditText) findViewById(R.id.editText_qq);

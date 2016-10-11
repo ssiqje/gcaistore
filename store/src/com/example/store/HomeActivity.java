@@ -8,29 +8,22 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.DrawerLayout;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -74,7 +67,7 @@ public class HomeActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.home_activity);
 		dao = new InStoreDaoInf(this);
-		server = new Server(this,handler);
+		server = new Server(this);
 		// 初实化
 		init();
 
@@ -135,18 +128,27 @@ public class HomeActivity extends Activity {
 				}
 				if(msg.what==CodeId.MessageID.LOGIN_USER_FAIL)
 				{
-					lv_user_data.clear();
-					lv_user_data.addAll(lv_user_data_logout);
-					lv_user_adapter.notifyDataSetChanged();
-					home_but_login.setVisibility(View.VISIBLE);
-					home_but_regedit.setVisibility(View.VISIBLE);
-					home_but_logout.setVisibility(View.GONE);
+					new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("提示！")
+					.setMessage(msg.obj.toString()).setNeutralButton("确定", null)
+					.create().show();
 				}
 				if(msg.what==CodeId.MessageID.UP_DATA_FILE_IS_OK)
 				{
 					Toast.makeText(HomeActivity.this, msg.obj.toString(), Toast.LENGTH_LONG).show();
 				}
+				if(msg.what==CodeId.MessageID.UN_LINE_OK)
+				{
+					unLineOkDoing();
+					Toast.makeText(HomeActivity.this, msg.obj.toString(), Toast.LENGTH_LONG).show();
+				}
+				if(msg.what==CodeId.MessageID.UN_LINE_FAIL)
+				{
+					new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("提示！")
+					.setMessage(msg.obj.toString()).setNeutralButton("确定", null)
+					.create().show();
+				}
 			}
+
 		};
 
 		weight_all = (TextView) findViewById(R.id.textView_weight_all);
@@ -190,14 +192,34 @@ public class HomeActivity extends Activity {
 					.setMessage(server.dataToSdcard()==true?"数据转移并保存成功！":"数据转移失败！").setNeutralButton("确定", null)
 					.create().show();
 				}else if("上传数据到服务器".equals(valuesString)){
-					//File excelFilepath = new  File(Environment.getExternalStorageDirectory()+"/user_excel");
+//					File excelFilepath = new  File(Environment.getExternalStorageDirectory()+"/user_excel/出货表.xls");
+//					DataOutputStream outputStream = null;
+//					try {
+//						outputStream = new DataOutputStream(new FileOutputStream(excelFilepath));
+//					} catch (FileNotFoundException e1) {
+//						// TODO Auto-generated catch block
+//						e1.printStackTrace();
+//					}
+//					try {
+//						outputStream.writeBytes("asdfjkl");
+//						outputStream.close();
+//					} catch (IOException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+					
 					//File[] files = excelFilepath.listFiles();
 					
 					//boolean b = server.dataToServer();
+					
 					System.out.println("上传数据到服务器~~~~");
-					File file = new File(Environment.getExternalStorageDirectory()+"/user_excel/出货表.xls");
-					UploadThread uploadThread = new UploadThread(file, "http://192.168.254.101/datapackage/upload", handler);
-					uploadThread.start();
+					File file = new File(Environment.getExternalStorageDirectory()+"/user_excel");
+					File[] filelist = file.listFiles();
+					for (File file2 : filelist) {
+						UploadThread uploadThread = new UploadThread(file2, "http://192.168.254.101/datapackage/upload", handler);
+						uploadThread.start();
+					}
+					
 				}
 				else {
 					new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("害羞。")
@@ -217,6 +239,7 @@ public class HomeActivity extends Activity {
 		home_but_login = (Button) findViewById(R.id.home_but_login);
 		home_but_logout = (Button) findViewById(R.id.home_but_logout);
 		home_but_regedit = (Button) findViewById(R.id.home_but_regedit);
+		
 		home_but_login.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -225,9 +248,6 @@ public class HomeActivity extends Activity {
 				Intent intent = new Intent();
 				intent.setClass(HomeActivity.this, LoginAty.class);
 				startActivityForResult(intent, CodeId.StartActivityID.LOGIN);
-//				new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("害羞。")
-//				.setMessage("不好意思，这个功能我还没学会。我会加油的，你在等等    :) 。").setNeutralButton("确定", null)
-//				.create().show();
 
 			}
 		});
@@ -237,9 +257,6 @@ public class HomeActivity extends Activity {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				startActivityForResult(new Intent(HomeActivity.this, RegeditAty.class),CodeId.StartActivityID.USER_REGEIDT);
-//				new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("害羞。")
-//				.setMessage("不好意思，这个功能我还没学会。我会加油的，你在等等    :) 。").setNeutralButton("确定", null)
-//				.create().show();
 			}
 		});
 		home_but_logout.setOnClickListener(new OnClickListener() {
@@ -247,19 +264,10 @@ public class HomeActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				imageView_photo.setImageResource(R.drawable.defaultl);
-				textview_user_name.setText("???");
-				textView_signature.setText("???");
 				sPreferences= HomeActivity.this.getSharedPreferences("user", MODE_APPEND);
-				Editor editor = sPreferences.edit();
-				editor.putBoolean("online", false);
-				editor.commit();
-				lv_user_data.clear();
-				lv_user_data.addAll(lv_user_data_logout);
-				lv_user_adapter.notifyDataSetChanged();
-				home_but_login.setVisibility(View.VISIBLE);
-				home_but_regedit.setVisibility(View.VISIBLE);
-				home_but_logout.setVisibility(View.GONE);
+				String user_json = sPreferences.getString("user_json", "");
+				server.unLine(user_json,handler);
+				
 			}
 		});
 
@@ -338,6 +346,7 @@ public class HomeActivity extends Activity {
 					home_but_login.setVisibility(View.GONE);
 					home_but_regedit.setVisibility(View.GONE);
 					home_but_logout.setVisibility(View.VISIBLE);
+					loginUserPass(userJsonObject.toString());
 
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
@@ -467,9 +476,9 @@ public class HomeActivity extends Activity {
 						textView_signature.setText(signature);
 					}
 				}
-				if (userJsonObject.has("photoImageView")) {
+				if (userJsonObject.has("photoImage")) {
 					String signature = userJsonObject
-							.getString("photoImageView");
+							.getString("photoImage");
 					if (!signature.equals("")
 							&& !signature.equals("0")) {
 						Network_util.getPhotoBuyOne(handler,
@@ -502,14 +511,36 @@ public class HomeActivity extends Activity {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				// TODO Auto-generated method stub
-				sPreferences = HomeActivity.this.getSharedPreferences("user", MODE_APPEND);
-				Editor editor = sPreferences.edit();
-				editor.putBoolean("online", false);
-				editor.commit();
+				sPreferences= HomeActivity.this.getSharedPreferences("user", MODE_APPEND);
+				String user_json = sPreferences.getString("user_json", "");
+				server.unLine(user_json,handler);
+//				sPreferences = HomeActivity.this.getSharedPreferences("user", MODE_APPEND);
+//				Editor editor = sPreferences.edit();
+//				editor.putBoolean("online", false);
+//				editor.commit();
 				finish();
 				
 			}
 		}).setNegativeButton("取消", null).create().show();
+	}
+	/**
+	 * 下线成功后的布局
+	 */
+	public boolean unLineOkDoing() {
+		imageView_photo.setImageResource(R.drawable.defaultl);
+		textview_user_name.setText("???");
+		textView_signature.setText("???");
+		
+		Editor editor = sPreferences.edit();
+		editor.putBoolean("online", false);
+		editor.commit();
+		lv_user_data.clear();
+		lv_user_data.addAll(lv_user_data_logout);
+		lv_user_adapter.notifyDataSetChanged();
+		home_but_login.setVisibility(View.VISIBLE);
+		home_but_regedit.setVisibility(View.VISIBLE);
+		home_but_logout.setVisibility(View.GONE);
+		return true;
 	}
 
 }

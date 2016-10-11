@@ -156,7 +156,7 @@ public class InAndOutAty extends Activity {
 			}
 		});
 		dao = new InStoreDaoInf(this);
-		server = new Server(this,handler);
+		server = new Server(this);
 
 		tabHost.setup();
 		tabHost.addTab(tabHost.newTabSpec("in").setIndicator("½ø»õ")

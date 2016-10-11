@@ -1,11 +1,7 @@
 package com.example.store.network;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -13,17 +9,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.example.store.CodeId;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
@@ -46,8 +37,7 @@ public class Network_util {
 			public void run() {
 				// TODO Auto-generated method stub
 				try {
-					int i = isNameOk(object.getString("user_name"));
-					if (i == 1) {
+					
 						try {
 							HttpURLConnection connection = (HttpURLConnection) new URL(
 									url).openConnection();
@@ -93,13 +83,7 @@ public class Network_util {
 							handler.sendMessage(handler.obtainMessage(
 									CodeId.MessageID.REGEDIT_USER_FAIL, "注册失败！"));
 						}
-					} else if (i == 2) {
-						handler.sendMessage(handler.obtainMessage(CodeId.MessageID.IS_NAME_OK,
-								"用户名已存在！"));
-					} else {
-						handler.sendMessage(handler.obtainMessage(CodeId.MessageID.IS_NAME_OK,
-								"不好意思，服务器开小差了，请您稍后在试！"));
-					}
+					
 				} catch (JSONException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -107,68 +91,6 @@ public class Network_util {
 
 			}
 		}).start();
-	}
-
-	/**
-	 * 判断用户名在服务器上是否已存在
-	 * 
-	 * @param user_name要查询的用户名
-	 * @return 1合格 ，2不合格，3服务器问题
-	 */
-	public static int isNameOk(final String user_name) {
-		// TODO Auto-generated method stub
-
-		System.out
-				.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		// TODO Auto-generated method stub
-		String url = "http://192.168.254.101/datapackage/userdata";
-		try {
-			HttpURLConnection connection = (HttpURLConnection) new URL(url)
-					.openConnection();
-			connection.setReadTimeout(1000 * 5);
-			connection.setRequestMethod("POST");
-			OutputStream outputStream = connection.getOutputStream();
-			outputStream
-					.write(("action=get_user_by_name&user_name=" + user_name)
-							.getBytes());
-			BufferedReader bReader = new BufferedReader(new InputStreamReader(
-					connection.getInputStream(), "utf-8"));
-			StringBuffer sbBuffer = new StringBuffer();
-			String line;
-			while ((line = bReader.readLine()) != null) {
-				System.out.println(line);
-				sbBuffer.append(line);
-			}
-			String resultString = connection.getResponseMessage();
-			System.out.println("返回的结果:" + resultString + "返回的内容："
-					+ sbBuffer.toString());
-			JSONObject resultJsonObject = null;
-			try {
-				resultJsonObject = new JSONObject(sbBuffer.toString());
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			String result = null;
-			try {
-				result = resultJsonObject.getString("result");
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if (result.equals("yes")) {
-				return 1;
-			} else {
-				return 2;
-			}
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return 3;
 	}
 	/**
 	 * 获取服务器上的照片列表
@@ -305,8 +227,8 @@ public class Network_util {
 					connection = (HttpURLConnection) new URL(
 							"http://192.168.254.101/datapackage/userdata")
 							.openConnection();
-					connection.setReadTimeout(1000 * 5);
-					connection.setConnectTimeout(1000 * 5);
+					connection.setReadTimeout(1000 * 10);
+					connection.setConnectTimeout(1000 * 10);
 					connection.setRequestMethod("POST");
 					OutputStream outputStream = connection.getOutputStream();
 					outputStream
@@ -333,7 +255,7 @@ public class Network_util {
 								handler.sendMessage(handler.obtainMessage(
 										CodeId.MessageID.LOGIN_USER_PASS, login_resultJsonObject.getString("json_message")));
 							}else {
-								handler.sendMessage(handler.obtainMessage(CodeId.MessageID.LOGIN_USER_FAIL, "用户ID或密码错误！"));
+								handler.sendMessage(handler.obtainMessage(CodeId.MessageID.LOGIN_USER_FAIL, login_resultJsonObject.getString("json_message")));
 							}
 						}
 					} catch (JSONException e) {
@@ -428,102 +350,170 @@ public class Network_util {
 		
 	}
 
-	/**
-	 * 上传数据到服务器
-	 * @param path 上传的文件路径
-	 * @return 1,文件为空，2成功，3失败
-	 */
-	public static  void  dataToServer(File path,Handler handler) {
-		// TODO Auto-generated method stub
-		if(path==null)
-		{
-			handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UP_DATA_FILE_IS_ENP, "文件为空！"));
-		}else {
-			int count=1;
-			if(path.isDirectory())
-			{
-				File [] filelist = path.listFiles();
-				for (; count <= filelist.length; count++) {
-					dataToServerGo(filelist[count-1],handler);
-				}
-			}else {
-				dataToServerGo(path,handler);
-			}
-		}
-		
-	}
+//	/**
+//	 * 上传数据到服务器
+//	 * @param path 上传的文件路径
+//	 * @return 1,文件为空，2成功，3失败
+//	 */
+//	public static  void  dataToServer(File path,Handler handler) {
+//		// TODO Auto-generated method stub
+//		if(path==null)
+//		{
+//			handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UP_DATA_FILE_IS_ENP, "文件为空！"));
+//		}else {
+//			int count=1;
+//			if(path.isDirectory())
+//			{
+//				File [] filelist = path.listFiles();
+//				for (; count <= filelist.length; count++) {
+//					dataToServerGo(filelist[count-1],handler);
+//				}
+//			}else {
+//				dataToServerGo(path,handler);
+//			}
+//		}
+//		
+//	}
+//
+//	public static void dataToServerGo(final File file,final Handler handler) {
+//		new Thread(new Runnable() {
+//
+//			@Override
+//			public void run() {
+//				// TODO Auto-generated method stub
+//				HttpURLConnection connection = null;
+//					    String end = "/r/n";
+//					    String Hyphens = "--";
+//					    String boundary =UUID.randomUUID().toString();
+//					    try
+//					    {
+//					      URL url = new URL("http://192.168.254.101/datapackage/userdata");
+//					      HttpURLConnection con = (HttpURLConnection) url.openConnection();
+//					      /* 允许Input、Output，不使用Cache */
+//					      con.setDoInput(true);
+//					      con.setDoOutput(true);
+//					      con.setUseCaches(false);
+//					      /* 设定传送的method=POST */
+//					      con.setRequestMethod("POST");
+//					      /* setRequestProperty */
+//					      con.setRequestProperty("Connection", "Keep-Alive");
+//					      con.setRequestProperty("Charset", "UTF-8");
+//					      con.setRequestProperty("Content-Type",
+//					          "multipart/form-data;boundary=" + boundary);
+//					      /* 设定DataOutputStream */
+//					      DataOutputStream ds = new DataOutputStream(con.getOutputStream());
+//					      ds.writeBytes("action=updata");
+//					      ds.writeBytes(Hyphens + boundary + end);
+//					      ds.writeBytes("Content-Disposition: form-data; "
+//					          + "name=\"file1\";filename=\"" + "sdfe" + "\"" + end);
+//					      ds.writeBytes(end);
+//					      /* 取得文件的FileInputStream */
+//					      FileInputStream fStream = new FileInputStream(file);
+//					      /* 设定每次写入1024bytes */
+//					      int bufferSize = 1024;
+//					      byte[] buffer = new byte[bufferSize];
+//					      int length = -1;
+//					      /* 从文件读取数据到缓冲区 */
+//					      while ((length = fStream.read(buffer)) != -1)
+//					      {
+//					        /* 将数据写入DataOutputStream中 */
+//					        ds.write(buffer, 0, length);
+//					      }
+//					      ds.writeBytes(end);
+//					      ds.writeBytes(Hyphens + boundary + Hyphens + end);
+//					      fStream.close();
+//					      ds.flush();
+//					      /* 取得Response内容 */
+////					      InputStream is = con.getInputStream();
+////					      int ch;
+////					      StringBuffer b = new StringBuffer();
+////					      while ((ch = is.read()) != -1)
+////					      {
+////					        b.append((char) ch);
+////					      }
+////					      is.close();
+////					      ds.close();
+////					      if(b.toString().equals("ok"))
+////					      {
+//					    	  //handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UP_DATA_FILE_IS_OK, "上传成功！"));
+//					      System.out.println("上传成功");
+////					      }
+////					      handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UP_DATA_FILE_IS_FAIL, "上传失败！"));
+//					    } catch (Exception e)
+//					    {
+//					    	e.printStackTrace();
+//					    	System.out.println("上传失败");
+//					    }
+//			}
+//
+//		}).start();
+//	}
 
-	public static void dataToServerGo(final File file,final Handler handler) {
+
+	/**
+	 * 用户下线更新
+	 * @param user_json 下线的用户JSON
+	 * @param handler 
+	 */
+	public static void unLine(final String user_json, final Handler handler) {
+		// TODO Auto-generated method stub
 		new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
 				HttpURLConnection connection = null;
-					    String end = "/r/n";
-					    String Hyphens = "--";
-					    String boundary =UUID.randomUUID().toString();
-					    try
-					    {
-					      URL url = new URL("http://192.168.254.101/datapackage/userdata");
-					      HttpURLConnection con = (HttpURLConnection) url.openConnection();
-					      /* 允许Input、Output，不使用Cache */
-					      con.setDoInput(true);
-					      con.setDoOutput(true);
-					      con.setUseCaches(false);
-					      /* 设定传送的method=POST */
-					      con.setRequestMethod("POST");
-					      /* setRequestProperty */
-					      con.setRequestProperty("Connection", "Keep-Alive");
-					      con.setRequestProperty("Charset", "UTF-8");
-					      con.setRequestProperty("Content-Type",
-					          "multipart/form-data;boundary=" + boundary);
-					      /* 设定DataOutputStream */
-					      DataOutputStream ds = new DataOutputStream(con.getOutputStream());
-					      ds.writeBytes("action=updata");
-					      ds.writeBytes(Hyphens + boundary + end);
-					      ds.writeBytes("Content-Disposition: form-data; "
-					          + "name=\"file1\";filename=\"" + "sdfe" + "\"" + end);
-					      ds.writeBytes(end);
-					      /* 取得文件的FileInputStream */
-					      FileInputStream fStream = new FileInputStream(file);
-					      /* 设定每次写入1024bytes */
-					      int bufferSize = 1024;
-					      byte[] buffer = new byte[bufferSize];
-					      int length = -1;
-					      /* 从文件读取数据到缓冲区 */
-					      while ((length = fStream.read(buffer)) != -1)
-					      {
-					        /* 将数据写入DataOutputStream中 */
-					        ds.write(buffer, 0, length);
-					      }
-					      ds.writeBytes(end);
-					      ds.writeBytes(Hyphens + boundary + Hyphens + end);
-					      fStream.close();
-					      ds.flush();
-					      /* 取得Response内容 */
-//					      InputStream is = con.getInputStream();
-//					      int ch;
-//					      StringBuffer b = new StringBuffer();
-//					      while ((ch = is.read()) != -1)
-//					      {
-//					        b.append((char) ch);
-//					      }
-//					      is.close();
-//					      ds.close();
-//					      if(b.toString().equals("ok"))
-//					      {
-					    	  //handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UP_DATA_FILE_IS_OK, "上传成功！"));
-					      System.out.println("上传成功");
-//					      }
-//					      handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UP_DATA_FILE_IS_FAIL, "上传失败！"));
-					    } catch (Exception e)
-					    {
-					    	e.printStackTrace();
-					    	System.out.println("上传失败");
-					    }
-			}
+				try {
+					connection = (HttpURLConnection) new URL(
+							"http://192.168.254.101/datapackage/userdata")
+							.openConnection();
+					connection.setReadTimeout(1000 * 5);
+					connection.setConnectTimeout(1000 * 5);
+					connection.setRequestMethod("POST");
+					OutputStream outputStream = connection.getOutputStream();
+					outputStream
+							.write(("action=un_line&user_json=" + user_json)
+									.getBytes());
+					BufferedReader reader = new BufferedReader(
+							new InputStreamReader(connection.getInputStream(),"utf-8"));
+					StringBuffer sbBuffer = new StringBuffer();
+					String lineString;
+					while ((lineString = reader.readLine()) != null) {
+						sbBuffer.append(lineString);
+					}
+					try {
+						JSONObject login_resultJsonObject = new JSONObject(
+								sbBuffer.toString());
+						System.out.println("用户资料更新结果："+login_resultJsonObject.toString());
+						String action = login_resultJsonObject
+								.getString("action");
+						if ("un_line".equals(action)) {
+							if ("pass".equals(login_resultJsonObject
+									.getString("result"))) {
+								
+								System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~"+handler);
+								handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UN_LINE_OK, "您已下线！"));
+							}else {
+								handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UN_LINE_FAIL, "服务器舍不得你下，那你在玩会吧。"));
+							}
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UN_LINE_FAIL, "json:网络异常，请稍候在试！"));
+					}
 
+				} catch (MalformedURLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UN_LINE_FAIL, "MalformedURL:网络异常，请稍候在试！"));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UN_LINE_FAIL, "IO:网络异常，请稍候在试！"));
+				}
+
+			}
 		}).start();
 	}
 	

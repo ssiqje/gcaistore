@@ -1,7 +1,5 @@
 package com.example.store.bean;
 
-import android.widget.ImageView;
-
 public class User  extends T
 {
 	private String photoImageView;

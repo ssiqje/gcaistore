@@ -1,7 +1,6 @@
 package com.example.store.server;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -21,11 +20,12 @@ import com.example.store.network.Network_util;
 public class Server {
 
 	private InStoreDaoInf dao;
-	private Handler handler;
+	//private Handler handler;
 
-	public Server(Context context,Handler handler) {
+	public Server(Context context) {
 		dao = new InStoreDaoInf(context);
-		this.handler=handler;
+		//this.handler=handler;
+		
 	}
 
 	/**
@@ -295,36 +295,13 @@ public class Server {
     	File inStoreFile = new File(path,"进货表.xls");
     	File outStoreFile = new File(path,"出货表.xls");
     	File summaryFile = new File(path,"总表.xls");
-    	try {
-			if(!kindFile.exists())
-			{
-				kindFile.createNewFile();
-			}
-			if(!storeFile.exists())
-			{
-				storeFile.createNewFile();
-			}
-			if(!inStoreFile.exists())
-			{
-				inStoreFile.createNewFile();
-			}
-			if(!outStoreFile.exists())
-			{
-				outStoreFile.createNewFile();
-			}
-			if(!summaryFile.exists())
-			{
-				summaryFile.createNewFile();
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	
     	int gc=ExcleUtil.dataToExcel(dao.getList(GcParameter.class),GcParameter.class,kindFile);
     	int store=ExcleUtil.dataToExcel(dao.getList(Store.class),Store.class,storeFile);
     	int instore=ExcleUtil.dataToExcel(dao.getList(In_store.class),In_store.class,inStoreFile);
     	int outstore=ExcleUtil.dataToExcel(dao.getList(Out_store.class),Out_store.class,outStoreFile);
     	int summary=ExcleUtil.dataToExcel(dao.getList(Summary.class),Summary.class,summaryFile);
+//    	return b=outstore==2?true:false;
 		return b=(gc==2&&store==2&&instore==2&&outstore==2&&summary==2)?true:false;
 	}
 
@@ -333,15 +310,19 @@ public class Server {
 	 * @return true成功，false失败
 	 */
 	public boolean dataToServer() {
-		// TODO Auto-generated method stub
-		File path = new  File(Environment.getExternalStorageDirectory()+"/user_excel");
-		if(!path.exists())
-		{
-			return true;
-		}else {
-			Network_util.dataToServer(path,handler);
-		}
 		return false;
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * 用户下线更新
+	 * @param user_json 下线的用户JSON
+	 */
+	public void unLine(String user_json,Handler handler) {
+		// TODO Auto-generated method stub
+		Network_util.unLine(user_json,handler);
+		
 	}
 
 }

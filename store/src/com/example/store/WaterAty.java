@@ -66,7 +66,7 @@ public class WaterAty extends Activity implements OnClickListener{
 		but_about.setOnClickListener(this);
 		
 		dao = new InStoreDaoInf(this);
-		server=new Server(this,handler);
+		server=new Server(this);
 		
 		
 		data = new ArrayList<HashMap<String,String>>();

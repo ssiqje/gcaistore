@@ -78,7 +78,7 @@ public class KindAty extends Activity implements OnClickListener {
 		but_about.setOnClickListener(this);
 
 		dao = new InStoreDaoInf(this);
-		server=new Server(this,handler);
+		server=new Server(this);
 
 		// 初实化列表数据
 		initKindSetLvValues();
