@@ -220,6 +220,9 @@ public class HomeActivity extends Activity {
 						uploadThread.start();
 					}
 					
+				}else if("下载数据到本地".equals(valuesString))
+				{
+					
 				}
 				else {
 					new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("害羞。")

@@ -7,7 +7,7 @@ import android.util.Log;
 
 public class DbHelper extends SQLiteOpenHelper {
 	public DbHelper(Context context) {
-		super(context, "gangcai.db", null,3);
+		super(context, "gangcai.db", null,4);
 		// TODO Auto-generated constructor stub
 		Log.i("info", "daohelp....");
 		
@@ -20,7 +20,9 @@ public class DbHelper extends SQLiteOpenHelper {
 		db.execSQL("CREATE TABLE GcParameter ("+
 					"kind_id  VARCHAR PRIMARY KEY,"+
 					"weight_m DECIMAL NOT NULL,"+
-					"gc_long     DECIMAL NOT NULL"+
+					"gc_long     DECIMAL NOT NULL,"+
+					"add_flag   INTEGER NOT NULL DEFAULT (0),"+
+					"modfiy_flag   INTEGER NOT NULL DEFAULT (0)"+
 					")");
 		//创建进贷表
 		db.execSQL("CREATE TABLE In_store ("+
@@ -32,7 +34,9 @@ public class DbHelper extends SQLiteOpenHelper {
                      "count    INTEGER NOT NULL,"+
                      "wight    DECIMAL NOT NULL,"+
 					"allpay   DECIMAL NOT NULL,"+
-					"date     DATETIME NOT NULL"+
+					"date     DATETIME NOT NULL,"+
+					"add_flag   INTEGER NOT NULL DEFAULT (0),"+
+					"modfiy_flag   INTEGER NOT NULL DEFAULT (0)"+
 					")");
 		//创建出贷表
 		db.execSQL("CREATE TABLE Out_store ("+
@@ -44,7 +48,9 @@ public class DbHelper extends SQLiteOpenHelper {
                  "count    INTEGER NOT NULL,"+
                  "wight    DECIMAL NOT NULL,"+
 				"allpay   DECIMAL NOT NULL,"+
-				"date     DATETIME NOT NULL"+
+				"date     DATETIME NOT NULL,"+
+				"add_flag   INTEGER NOT NULL DEFAULT (0),"+
+				"modfiy_flag   INTEGER NOT NULL DEFAULT (0)"+
 				")");
 		//库存表
 		db.execSQL("CREATE TABLE Store ("+
@@ -52,7 +58,9 @@ public class DbHelper extends SQLiteOpenHelper {
                  "weight_m DECIMAL NOT NULL,"+
                  "gc_long     DECIMAL NOT NULL,"+
                  "count    INTEGER NOT NULL,"+
-                 "wight    DECIMAL NOT NULL"+
+                 "wight    DECIMAL NOT NULL,"+
+                 "add_flag   INTEGER NOT NULL DEFAULT (0),"+
+ 				"modfiy_flag   INTEGER NOT NULL DEFAULT (0)"+
 				")");
 		//概要表
 		db.execSQL("CREATE TABLE Summary ("+
@@ -60,7 +68,9 @@ public class DbHelper extends SQLiteOpenHelper {
                        "weight_all DECIMAL NOT NULL,"+
                        "inpay_all  DECIMAL NOT NULL,"+
                        "outpay_all DECIMAL NOT NULL,"+
-                       "in_or_out_pay  DECIMAL NOT NULL"+
+                       "in_or_out_pay  DECIMAL NOT NULL,"+
+                       "add_flag   INTEGER NOT NULL DEFAULT (0),"+
+       				"modfiy_flag   INTEGER NOT NULL DEFAULT (0)"+
                        ")");
 		Log.i("info", "创表结束....");
 		
