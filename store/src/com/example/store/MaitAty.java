@@ -16,8 +16,8 @@ public class MaitAty extends Activity {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		p= this.getSharedPreferences("user", MODE_APPEND);
-		boolean first= p.getBoolean("first", false);
-		if(!first)
+		boolean first= p.getBoolean("first", true);
+		if(first)
 		{
 			
 			startActivity(new Intent(this, WelcomeAty.class));

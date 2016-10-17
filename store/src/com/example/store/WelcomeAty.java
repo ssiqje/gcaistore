@@ -83,7 +83,7 @@ public class WelcomeAty extends Activity
 	public void start_use(View view )
 	{
 		Editor editor =  sp.edit();
-		editor.putBoolean("first", true);
+		editor.putBoolean("first", false);
 		editor.commit();
 		startActivity(new Intent(this, HomeTip.class));
 		finish();

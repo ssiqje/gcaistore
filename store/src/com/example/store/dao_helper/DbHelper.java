@@ -7,7 +7,7 @@ import android.util.Log;
 
 public class DbHelper extends SQLiteOpenHelper {
 	public DbHelper(Context context) {
-		super(context, "gangcai.db", null,4);
+		super(context, "gangcai.db", null,3);
 		// TODO Auto-generated constructor stub
 		Log.i("info", "daohelp....");
 		

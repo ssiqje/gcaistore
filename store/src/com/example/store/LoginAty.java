@@ -93,7 +93,14 @@ public class LoginAty extends Activity {
 
 	// 登入按扭事件
 	public void logIn(View v) {
-		int id = Integer.parseInt(edittext_login_user_name.getText().toString());
+		int id = 0;
+		try {
+			id = Integer.parseInt(edittext_login_user_name.getText().toString());
+		} catch (NumberFormatException e1) {
+			// TODO Auto-generated catch block
+			new AlertDialog.Builder(LoginAty.this).setTitle("提示！").setMessage("通行ID只能是数字，请你重新输入！").setCancelable(false).setNeutralButton("确定", null).create().show();
+			e1.printStackTrace();
+		}
 		String user_psw = edittext_login_user_psw.getText().toString();
 		auto_login = checkbox_login_auto_login.isChecked();
 		JSONObject userJsonObject = new JSONObject();
@@ -109,6 +116,6 @@ public class LoginAty extends Activity {
 
 	// 取消登入按扭事件
 	public void cancel(View v) {
-
+		finish();
 	}
 }

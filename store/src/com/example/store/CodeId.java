@@ -17,6 +17,8 @@ public class CodeId {
 		public static final int UP_DATA_FILE_IS_FAIL = 12;
 		public static final int UN_LINE_OK=13;
 		public static final int UN_LINE_FAIL=14;
+		public static int UPTABLE_FAIL=15;
+		public static int UPTABLE_OK=16;
 	} 
 	public static class StartActivityID{
 		public static final int USER_REGEIDT = 1;

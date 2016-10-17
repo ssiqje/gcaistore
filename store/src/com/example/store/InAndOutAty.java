@@ -106,10 +106,7 @@ public class InAndOutAty extends Activity {
 							public void onClick(DialogInterface dialog,
 									int which) {
 								// TODO Auto-generated method stub
-								In_store in_store = new In_store();
-								in_store.setId(Long.parseLong(inList.get(
-										position).get("id")));
-								if (dao.del(in_store)) {
+								if (server.delItemFromInStore(inList.get(position))) {	
 									inList.remove(position);
 									inAdapter.notifyDataSetChanged();
 									Toast.makeText(InAndOutAty.this, "删除成功！",
@@ -137,11 +134,7 @@ public class InAndOutAty extends Activity {
 							public void onClick(DialogInterface dialog,
 									int which) {
 								// TODO Auto-generated method stub
-								Out_store in_store = new Out_store();
-
-								in_store.setId(Long.parseLong(outList.get(
-										position).get("id")));
-								if (dao.del(in_store)) {
+								if (server.delItemFromOutStore(outList.get(position))) {
 									outList.remove(position);
 									outAdapter.notifyDataSetChanged();
 									Toast.makeText(InAndOutAty.this, "删除成功！",
@@ -241,8 +234,16 @@ public class InAndOutAty extends Activity {
 		final String count = in_count.getText().toString();
 		final String date = simpleDateFormat.format(new Date());
 		if (!server.isNull(kind_id, weight_m, gc_long, inpay_m, count, date)) {
-			Toast.makeText(InAndOutAty.this, "填写错误或数据为空！", Toast.LENGTH_LONG)
-					.show();
+			new AlertDialog.Builder(InAndOutAty.this).setTitle("提示！").setMessage("数据不能为空！").setCancelable(false).setNeutralButton("确定", null).create().show();
+			return;
+		}
+		try {
+			Float.parseFloat(inpay_m);
+			Integer.parseInt(count);
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			new AlertDialog.Builder(InAndOutAty.this).setTitle("提示！").setMessage("数据格式填写错误，请重新输入！").setCancelable(false).setNeutralButton("确定", null).create().show();
+			e.printStackTrace();
 			return;
 		}
 		new Builder(this)
@@ -274,6 +275,7 @@ public class InAndOutAty extends Activity {
 							map.put("id", id + "");
 							map.put("kind_id", kind_id);
 							map.put("inpay_m", inpay_m);
+							map.put("count", count);
 							map.put("weight",
 									Float.parseFloat(weight_m)
 											* Float.parseFloat(gc_long)
@@ -308,12 +310,20 @@ public class InAndOutAty extends Activity {
 		final String kind_id = (String) outSpinner.getSelectedItem();
 		final String weight_m = out_weight_m.getText().toString();
 		final String gc_long = out_gc_long.getText().toString();
-		final String inpay_m = out_outpay_m.getText().toString();
+		final String outpay_m = out_outpay_m.getText().toString();
 		final String count = out_count.getText().toString();
 		final String date = simpleDateFormat.format(new Date());
-		if (!server.isNull(kind_id, weight_m, gc_long, inpay_m, count, date)) {
-			Toast.makeText(InAndOutAty.this, "填写错误或数据为空！", Toast.LENGTH_LONG)
-					.show();
+		if (!server.isNull(kind_id, weight_m, gc_long, outpay_m, count, date)) {
+			new AlertDialog.Builder(InAndOutAty.this).setTitle("提示！").setMessage("数据不能为空！").setCancelable(false).setNeutralButton("确定", null).create().show();
+			return;
+		}
+		try {
+			Float.parseFloat(outpay_m);
+			Integer.parseInt(count);
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			new AlertDialog.Builder(InAndOutAty.this).setTitle("提示！").setMessage("数据格式填写错误，请重新输入！").setCancelable(false).setNeutralButton("确定", null).create().show();
+			e.printStackTrace();
 			return;
 		}
 
@@ -324,13 +334,13 @@ public class InAndOutAty extends Activity {
 								+ "编号ID:"
 								+ kind_id
 								+ "售价:"
-								+ inpay_m
+								+ outpay_m
 								+ "重量:"
 								+ (Float.parseFloat(weight_m)
 										* Float.parseFloat(gc_long) * Integer
 											.parseInt(count))
 								+ "总价:"
-								+ (Float.parseFloat(inpay_m)
+								+ (Float.parseFloat(outpay_m)
 										* Float.parseFloat(gc_long) * Integer
 											.parseInt(count)))
 				.setNegativeButton("取消", null)
@@ -340,18 +350,19 @@ public class InAndOutAty extends Activity {
 					public void onClick(DialogInterface dialog, int which) {
 						// TODO Auto-generated method stub
 						int code=server.addOutStore(id, kind_id, weight_m, gc_long,
-								inpay_m, count, date);
+								outpay_m, count, date);
 						if (code==3) {
 							HashMap<String, String> map = new HashMap<String, String>();
 							map.put("id", id + "");
 							map.put("kind_id", kind_id);
-							map.put("inpay_m", inpay_m);
+							map.put("inpay_m", outpay_m);
+							map.put("count", count);
 							map.put("weight",
 									Float.parseFloat(weight_m)
 											* Float.parseFloat(gc_long)
 											* Integer.parseInt(count) + "");
 							map.put("allpay",
-									Float.parseFloat(inpay_m)
+									Float.parseFloat(outpay_m)
 											* Float.parseFloat(gc_long)
 											* Integer.parseInt(count) + "");
 							outList.add(map);

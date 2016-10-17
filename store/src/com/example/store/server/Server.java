@@ -4,6 +4,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.os.Environment;
 import android.os.Handler;
@@ -20,13 +24,26 @@ import com.example.store.network.Network_util;
 public class Server {
 
 	private InStoreDaoInf dao;
-	//private Handler handler;
-
+	private static JSONArray del_list;
+	private JSONObject jsonObject=null;
 	public Server(Context context) {
 		dao = new InStoreDaoInf(context);
-		//this.handler=handler;
-		
+		del_list = new JSONArray();
 	}
+
+	
+	
+	public static JSONArray getDel_list() {
+		return del_list;
+	}
+
+
+
+	public static void setDel_list(JSONArray del_list) {
+		Server.del_list = del_list;
+	}
+
+
 
 	/**
 	 * 判断获取的值是不是为空
@@ -82,16 +99,18 @@ public class Server {
 		inStore.setAllpay(Float.parseFloat(inpay_m) * Float.parseFloat(gc_long)
 				* Integer.parseInt(count));
 		inStore.setDate(date);
+		inStore.setAdd_flag(1);
 		if (!dao.save(inStore)) {
 			b = false;
 		}
 
 		// 通过查询更新Store
-		Store in_db_store = (Store) dao.getById(Store.class,
-				inStore.getKind_id());
+		Store in_db_store = (Store) dao.getById(Store.class,inStore.getKind_id());
 		if (in_db_store != null) {
 			in_db_store.setCount(in_db_store.getCount() + inStore.getCount());
 			in_db_store.setWight(in_db_store.getWight() + inStore.getWight());
+			in_db_store.setAdd_flag(1);
+			in_db_store.setModfiy_flag(1);
 			if (!dao.upData(in_db_store)) {
 				b = false;
 			}
@@ -102,6 +121,7 @@ public class Server {
 			store.setGc_long(inStore.getGc_long());
 			store.setCount(inStore.getCount());
 			store.setWight(inStore.getWight());
+			store.setAdd_flag(1);
 			if (!dao.save(store)) {
 				b = false;
 			}
@@ -117,6 +137,8 @@ public class Server {
 			summary.setInpay_all(summary.getInpay_all() + inStore.getAllpay());
 			summary.setIn_or_out_pay(summary.getOutpay_all()
 					- summary.getInpay_all());
+			summary.setAdd_flag(1);
+			summary.setModfiy_flag(1);
 			if (!dao.upData(summary)) {
 				b = false;
 			}
@@ -127,6 +149,7 @@ public class Server {
 			summary.setOutpay_all(0f);
 			summary.setIn_or_out_pay(summary.getOutpay_all()
 					- summary.getInpay_all());
+			summary.setAdd_flag(1);
 			if (!dao.save(summary)) {
 				b = false;
 			}
@@ -179,12 +202,14 @@ public class Server {
 			out_store.setAllpay(Float.parseFloat(outpay_m)
 					* Float.parseFloat(gc_long) * Integer.parseInt(count));
 			out_store.setDate(date);
-
+			out_store.setAdd_flag(1);
 			// 通过查询更新Store
 			
 			if (store != null) {
 				store.setCount(store.getCount() - out_store.getCount());
 				store.setWight(store.getWight() - out_store.getWight());
+				store.setAdd_flag(1);
+				store.setModfiy_flag(1);
 			} 
 
 			// 更新总表
@@ -196,10 +221,25 @@ public class Server {
 				summary.setOutpay_all(summary.getOutpay_all() + out_store.getAllpay());
 				summary.setIn_or_out_pay(summary.getOutpay_all()
 						- summary.getInpay_all());
+				summary.setAdd_flag(1);
+				summary.setModfiy_flag(1);
 			} else {
 				System.out.println("没有拿到总表！");
 			}
 			boolean b=dao.saveOutItemWater(out_store,store,summary);
+			if(b)
+			{
+				jsonObject = new JSONObject();
+				try {
+					jsonObject.put("type", "store");
+					jsonObject.put("kind_id",store.getKind_id());
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				del_list.put(jsonObject);
+				return 3;
+			}
 			return b?3:4;
 		}else {
 			return 2;
@@ -220,8 +260,13 @@ public class Server {
 		in_store.setId(Long.parseLong(hashMap.get("id")));
 		//要更新的库存对象
 		Store store = (Store) dao.getById(Store.class, hashMap.get("kind_id"));
+		if(store==null)
+		//无货可退
+		{return false;}
 		store.setWight(store.getWight()- Float.parseFloat(hashMap.get("weight")));
 		store.setCount(store.getCount()- Integer.parseInt(hashMap.get("count")));
+		store.setAdd_flag(1);
+		store.setModfiy_flag(1);
 		//要更新的总表对象
 		Summary summary=null;
 		ArrayList<Object> list = dao.getList(Summary.class);
@@ -233,9 +278,36 @@ public class Server {
 					- Float.parseFloat(hashMap.get("allpay")));
 			summary.setIn_or_out_pay(summary.getOutpay_all()
 					- summary.getInpay_all());
+			summary.setAdd_flag(1);
+			summary.setModfiy_flag(1);
 			
 		}
-		return dao.delInStoreWater(in_store,store,summary);
+		if(dao.delInStoreWater(in_store,store,summary))
+		{
+			
+			try {
+				jsonObject = new JSONObject();
+				jsonObject.put("type", "in_store");
+				jsonObject.put("id", in_store.getId()+"");
+				del_list.put(jsonObject);
+				if(store.getCount()==0)
+				{jsonObject=null;
+				jsonObject = new JSONObject();
+				jsonObject.put("type", "store");
+				jsonObject.put("kind_id",store.getKind_id());
+				del_list.put(jsonObject);}
+				return true;
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+
+		}else {
+			return false;
+		}
+		return false;
 	}
 
 	/**
@@ -258,6 +330,8 @@ public class Server {
 
 		store.setWight(store.getWight()+ Float.parseFloat(hashMap.get("weight")));
 		store.setCount(store.getCount()+ Integer.parseInt(hashMap.get("count")));
+		store.setAdd_flag(1);
+		store.setModfiy_flag(1);
 		if (!dao.upData(store)) {
 			b = false;
 		}
@@ -271,9 +345,24 @@ public class Server {
 					- Float.parseFloat(hashMap.get("allpay")));
 			summary.setIn_or_out_pay(summary.getOutpay_all()
 					- summary.getInpay_all());
+			summary.setAdd_flag(1);
+			summary.setModfiy_flag(1);
 			if (!dao.upData(summary)) {
 				b = false;
 			}
+		}
+		if(b)
+		{
+			jsonObject = new JSONObject();
+			try {
+				jsonObject.put("type", "out_store");
+				jsonObject.put("id", out_store.getId()+"");
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			del_list.put(jsonObject);
+			
 		}
 		return b;
 	}
@@ -307,9 +396,24 @@ public class Server {
 
 	/**
 	 * 上传数据到服务器
+	 * @param handler 
 	 * @return true成功，false失败
 	 */
-	public boolean dataToServer() {
+	public boolean dataToServer(Handler handler) {
+		//得到要更新的数据 
+		JSONObject jsonObject = dao.getByAddFlag();
+		if(jsonObject!=null){
+			try {
+				jsonObject.put("del_list", del_list);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("获取的Json数据是："+jsonObject.toString());
+			Network_util.upDataToServer(jsonObject,handler);
+		}else {
+			System.out.println("没有获取到数据 ！");
+		}
 		return false;
 		// TODO Auto-generated method stub
 		
@@ -323,6 +427,14 @@ public class Server {
 		// TODO Auto-generated method stub
 		Network_util.unLine(user_json,handler);
 		
+	}
+	/**
+	 * 清除更新记号
+	 * @return 成功true ，失败false
+	 */
+	public boolean cancellationUpFlag() {
+		// TODO Auto-generated method stub
+		return dao.cancellationUpFlag();
 	}
 
 }

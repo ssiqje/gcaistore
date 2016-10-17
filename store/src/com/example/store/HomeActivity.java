@@ -138,10 +138,29 @@ public class HomeActivity extends Activity {
 				}
 				if(msg.what==CodeId.MessageID.UN_LINE_OK)
 				{
+					home_but_logout.setEnabled(true);
 					unLineOkDoing();
 					Toast.makeText(HomeActivity.this, msg.obj.toString(), Toast.LENGTH_LONG).show();
 				}
 				if(msg.what==CodeId.MessageID.UN_LINE_FAIL)
+				{
+					if(!HomeActivity.this.isFinishing())
+					{
+						home_but_logout.setEnabled(true);
+						new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("提示！")
+						.setMessage(msg.obj.toString()).setNeutralButton("确定", null)
+						.create().show();
+					}
+				}
+				if(msg.what==CodeId.MessageID.UPTABLE_OK)
+				{
+					server.cancellationUpFlag();
+					Server.setDel_list(null);
+					new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("提示！")
+					.setMessage(msg.obj.toString()).setNeutralButton("确定", null)
+					.create().show();
+				}
+				if(msg.what==CodeId.MessageID.UPTABLE_FAIL)
 				{
 					new AlertDialog.Builder(HomeActivity.this).setCancelable(false).setTitle("提示！")
 					.setMessage(msg.obj.toString()).setNeutralButton("确定", null)
@@ -192,33 +211,9 @@ public class HomeActivity extends Activity {
 					.setMessage(server.dataToSdcard()==true?"数据转移并保存成功！":"数据转移失败！").setNeutralButton("确定", null)
 					.create().show();
 				}else if("上传数据到服务器".equals(valuesString)){
-//					File excelFilepath = new  File(Environment.getExternalStorageDirectory()+"/user_excel/出货表.xls");
-//					DataOutputStream outputStream = null;
-//					try {
-//						outputStream = new DataOutputStream(new FileOutputStream(excelFilepath));
-//					} catch (FileNotFoundException e1) {
-//						// TODO Auto-generated catch block
-//						e1.printStackTrace();
-//					}
-//					try {
-//						outputStream.writeBytes("asdfjkl");
-//						outputStream.close();
-//					} catch (IOException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-					
-					//File[] files = excelFilepath.listFiles();
-					
-					//boolean b = server.dataToServer();
 					
 					System.out.println("上传数据到服务器~~~~");
-					File file = new File(Environment.getExternalStorageDirectory()+"/user_excel");
-					File[] filelist = file.listFiles();
-					for (File file2 : filelist) {
-						UploadThread uploadThread = new UploadThread(file2, "http://192.168.254.101/datapackage/upload", handler);
-						uploadThread.start();
-					}
+					server.dataToServer(handler);
 					
 				}else if("下载数据到本地".equals(valuesString))
 				{
@@ -267,6 +262,7 @@ public class HomeActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				v.setEnabled(false);
 				sPreferences= HomeActivity.this.getSharedPreferences("user", MODE_APPEND);
 				String user_json = sPreferences.getString("user_json", "");
 				server.unLine(user_json,handler);

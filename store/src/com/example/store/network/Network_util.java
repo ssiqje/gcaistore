@@ -29,26 +29,24 @@ public class Network_util {
 	 * @param handler 
 	 * @return 返回HANDLER MSG,成功返回 WHAT=REGEDIT_USER_OK  失败返回 WHAT=REGEDIT_USER_FAIL
 	 */
-	public static void regeditUser(final String url, final JSONObject object,
-			final Handler handler) {
-		new Thread(new Runnable() {
+	public static void regeditUser(final String url, final JSONObject object,final Handler handler) 
+	{
+		new Thread(new Runnable() 
+		{
 
 			@Override
-			public void run() {
+			public void run() 
+			{
 				// TODO Auto-generated method stub
 				try {
 					
 						try {
-							HttpURLConnection connection = (HttpURLConnection) new URL(
-									url).openConnection();
-							connection.setReadTimeout(1000 * 5);
+							HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+							
+							connection.setReadTimeout(1000 * 10);
 							connection.setRequestMethod("POST");
-							OutputStream outputStream = connection
-									.getOutputStream();
-							outputStream
-									.write(("action=user_regedit&userJson=" + object
-											.toString()).getBytes());
-							if (connection.getResponseCode() == 200) {
+							OutputStream outputStream = connection.getOutputStream();
+							outputStream.write(("action=user_regedit&userJson=" + object.toString()).getBytes());
 								BufferedReader brReader = new BufferedReader(
 										new InputStreamReader(connection
 												.getInputStream()));
@@ -63,14 +61,17 @@ public class Network_util {
 											resultString);
 									System.out.println("接收到注册成功的JSON:"
 											+ resulJsonObject.toString());
-									handler.sendMessage(handler.obtainMessage(
-											CodeId.MessageID.REGEDIT_USER_OK, resulJsonObject));
+									String result = resulJsonObject.getString("result");
+									if("pass".equals(result))
+									{
+										handler.sendMessage(handler.obtainMessage(
+												CodeId.MessageID.REGEDIT_USER_OK, resulJsonObject));
+									}else {
+										handler.sendMessage(handler.obtainMessage(
+												CodeId.MessageID.REGEDIT_USER_FAIL, "注册失败！"));
+									}
 								}
 
-							} else {
-								handler.sendMessage(handler.obtainMessage(
-										CodeId.MessageID.REGEDIT_USER_FAIL, "注册失败！"));
-							}
 
 						} catch (MalformedURLException e) {
 							// TODO Auto-generated catch block
@@ -511,6 +512,67 @@ public class Network_util {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 					handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UN_LINE_FAIL, "IO:网络异常，请稍候在试！"));
+				}
+
+			}
+		}).start();
+	}
+	public static void upDataToServer(final JSONObject jsonObject, final Handler handler) {
+		// TODO Auto-generated method stub
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				HttpURLConnection connection = null;
+				try {
+					connection = (HttpURLConnection) new URL(
+							"http://192.168.254.101/datapackage/userdata")
+							.openConnection();
+					connection.setReadTimeout(1000 * 5);
+					connection.setConnectTimeout(1000 * 5);
+					connection.setRequestMethod("POST");
+					OutputStream outputStream = connection.getOutputStream();
+					outputStream
+							.write(("action=uptable&up_data_json_string=" + jsonObject.toString())
+									.getBytes());
+					BufferedReader reader = new BufferedReader(
+							new InputStreamReader(connection.getInputStream(),"utf-8"));
+					StringBuffer sbBuffer = new StringBuffer();
+					String lineString;
+					while ((lineString = reader.readLine()) != null) {
+						sbBuffer.append(lineString);
+					}
+					try {
+						JSONObject updata_resultJsonObject = new JSONObject(
+								sbBuffer.toString());
+						System.out.println("数据上传结果："+updata_resultJsonObject.toString());
+						String action = updata_resultJsonObject
+								.getString("action");
+						if ("uptable".equals(action)) {
+							if ("pass".equals(updata_resultJsonObject
+									.getString("result"))) {
+								
+								System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~"+handler);
+								handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UPTABLE_OK, "数据上传成功！"));
+							}else {
+								handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UPTABLE_FAIL, "数据 上传失败了，请稍后重试。"));
+							}
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UPTABLE_FAIL, "json:网络异常，请稍候在试！"));
+					}
+
+				} catch (MalformedURLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UPTABLE_FAIL, "MalformedURL:网络异常，请稍候在试！"));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					handler.sendMessage(handler.obtainMessage(CodeId.MessageID.UPTABLE_FAIL, "IO:网络异常，请稍候在试！"));
 				}
 
 			}

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:contentDescription="@string/tip"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
      android:background="#0099cc"

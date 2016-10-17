@@ -3,6 +3,11 @@ package com.example.store;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.example.store.bean.GcParameter;
 import com.example.store.bean.In_store;
 import com.example.store.bean.Out_store;
@@ -150,6 +155,16 @@ public class KindAty extends Activity implements OnClickListener {
 													// TODO Auto-generated method
 													// stub
 													if (dao.del(gcParameter)) {
+														JSONArray jsonArray = Server.getDel_list();
+														JSONObject jsonObject = new JSONObject();
+														try {jsonObject.put("type", "gcparameter");
+															jsonObject.put("kind_id", gcParameter.getKind_id());
+														} catch (JSONException e) {
+															// TODO Auto-generated catch block
+															e.printStackTrace();
+														}
+														jsonArray.put(jsonObject);
+														Server.setDel_list(jsonArray);
 														listMaps.remove(position);
 														kind_seting_Adapter
 																.notifyDataSetChanged();
@@ -206,6 +221,8 @@ public class KindAty extends Activity implements OnClickListener {
 											gcParameter.setKind_id(kind_id);
 											gcParameter.setWeight_m(weight_m);
 											gcParameter.setGc_long(gc_long);
+											gcParameter.setAdd_flag(1);
+											gcParameter.setModfiy_flag(1);
 											if(dao.upData(gcParameter))
 											{
 												Toast.makeText(KindAty.this, "修改成功！", Toast.LENGTH_SHORT).show();
@@ -261,13 +278,22 @@ public class KindAty extends Activity implements OnClickListener {
 		String gc_long = et_gc_long.getText().toString();
 		if(!server.isNull(kind_id,weight_m,gc_long))
 		{
-			Toast.makeText(KindAty.this, "数据错误或者为空！", Toast.LENGTH_LONG).show();
+			new AlertDialog.Builder(KindAty.this).setTitle("提示！").setMessage("数据不能为空！").setCancelable(false).setNeutralButton("确定", null).create().show();
 			return;
+		}
+		try {
+			Float.parseFloat(weight_m);
+			Integer.parseInt(gc_long);
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			new AlertDialog.Builder(KindAty.this).setTitle("提示！").setMessage("数据格式填写错误，请重新输入！").setCancelable(false).setNeutralButton("确定", null).create().show();
+			e.printStackTrace();
 		}
 		System.out.println(kind_id + "@" + weight_m + "@" + gc_long );
 		gcParameter.setKind_id(kind_id);
 		gcParameter.setWeight_m(Float.parseFloat(weight_m));
 		gcParameter.setGc_long(Float.parseFloat(gc_long));
+		gcParameter.setAdd_flag(1);
 		String msg = "您确定要添加此项吗?\n编号ID:" + kind_id + "重/M:" + weight_m + "长/根:"
 				+ gc_long;
 		AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);

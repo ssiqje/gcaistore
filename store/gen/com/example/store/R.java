@@ -197,6 +197,7 @@ public final class R {
         public static final int confirm=0x7f050005;
         public static final int set_photo_tip=0x7f050001;
         public static final int suer_name=0x7f050002;
+        public static final int tip=0x7f050006;
         public static final int user_signature=0x7f050003;
     }
     public static final class style {
